@@ -189,10 +189,87 @@ PLANET_METADATA: Dict[str, Dict[str, Any]] = {
     }
 }
 
+# ==============================================================================
+# EXTRAGALACTIC DEEP SPACE REALM (LOCAL GROUP & BEYOND)
+# ==============================================================================
+GALAXY_METADATA: Dict[str, Dict[str, Any]] = {
+    "milkyway": {
+        "id": "milkyway",
+        "name": "Milky Way Galaxy",
+        "type": "Barred Spiral Galaxy (SBbc)",
+        "distance_ly": "0 (Our Cosmic Home)",
+        "diameter_ly": "100,000 light-years",
+        "stars_count": "100 to 400 Billion",
+        "mass_solar": "1.5 × 10^12 M☉",
+        "central_black_hole": "Sagittarius A* (4.15 × 10^6 M☉)",
+        "location": "Orion Arm (Local Spur)",
+        "rotation_period_years": "230 Million Years (Galactic Year)",
+        "composition": "Interstellar Medium, Hydrogen Gas, Dark Matter Halo, Old Yellow Core, Electric Blue Spiral Arms",
+        "facts": "Our home galaxy containing the Solar System. Rotates at ~220 km/s around Sagittarius A* supermassive black hole."
+    },
+    "andromeda": {
+        "id": "andromeda",
+        "name": "Andromeda Galaxy (M31)",
+        "type": "Grand Spiral Galaxy (SA(s)b)",
+        "distance_ly": "2.537 Million light-years",
+        "diameter_ly": "220,000 light-years",
+        "stars_count": "Approximately 1 Trillion",
+        "mass_solar": "1.23 × 10^12 M☉",
+        "central_black_hole": "Supermassive Black Hole (1.4 × 10^8 M☉)",
+        "location": "Local Group Giant",
+        "rotation_period_years": "250 Million Years",
+        "composition": "Massive Stellar Bulge, Dual Dust Arms, Satellite Galaxies (M32, M110)",
+        "facts": "The largest galaxy in the Local Group. Heading toward the Milky Way at 110 km/s; the two will collide in 4.5 billion years to form 'Milkomeda'."
+    },
+    "triangulum": {
+        "id": "triangulum",
+        "name": "Triangulum Galaxy (M33)",
+        "type": "Pinwheel Spiral Galaxy (SA(s)cd)",
+        "distance_ly": "2.73 Million light-years",
+        "diameter_ly": "60,000 light-years",
+        "stars_count": "40 Billion",
+        "mass_solar": "5.0 × 10^10 M☉",
+        "central_black_hole": "Under 3,000 M☉ (No Supermassive Core)",
+        "location": "Third-Largest Local Group Member",
+        "rotation_period_years": "180 Million Years",
+        "composition": "Abundant Gas/Dust, Giant Glowing H-II Emission Nebulae (NGC 604)",
+        "facts": "Known as the Pinwheel Galaxy, hosting NGC 604—one of the largest known star formation regions spanning 1,500 light-years."
+    },
+    "sombrero": {
+        "id": "sombrero",
+        "name": "Sombrero Galaxy (M104)",
+        "type": "Unbarred Spiral Galaxy (SA(s)a)",
+        "distance_ly": "31.1 Million light-years",
+        "diameter_ly": "50,000 light-years",
+        "stars_count": "800 Billion to 1 Trillion",
+        "mass_solar": "8.0 × 10^11 M☉",
+        "central_black_hole": "Ultramassive Black Hole (1.0 × 10^9 M☉)",
+        "location": "Virgo-Corvus Border",
+        "rotation_period_years": "200 Million Years",
+        "composition": "Extraordinarily Large Core Bulge, Prominent Circumstellar Absorption Dust Lane",
+        "facts": "Resembles a wide-brimmed Mexican sombrero hat. Its central supermassive black hole is 250 times more massive than Sagittarius A*."
+    },
+    "whirlpool": {
+        "id": "whirlpool",
+        "name": "Whirlpool Galaxy (M51)",
+        "type": "Grand-Design Spiral Galaxy (SA(s)bc pec)",
+        "distance_ly": "23.5 Million light-years",
+        "diameter_ly": "76,000 light-years",
+        "stars_count": "100 Billion",
+        "mass_solar": "1.6 × 10^11 M☉",
+        "central_black_hole": "Active Galactic Nucleus (AGN)",
+        "location": "Canes Venatici Constellation",
+        "rotation_period_years": "160 Million Years",
+        "composition": "Striking Symmetrical Spiral Arms, Tidal Bridge, Interacting Companion NGC 5195",
+        "facts": "First galaxy ever recognized as having a spiral structure (Lord Rosse in 1845). Gravitational interaction with NGC 5195 triggers intense star formation."
+    }
+}
+
 # Major Moons
 MOON_METADATA: List[Dict[str, Any]] = [
     {
-        "name": "Moon (Luna)",
+        "id": "moon",
+        "name": "The Moon (Luna)",
         "parent": "earth",
         "radius_km": 1737.4,
         "semi_major_axis_km": 384400,
@@ -201,6 +278,27 @@ MOON_METADATA: List[Dict[str, Any]] = [
         "facts": "Fifth-largest natural satellite in the solar system, tidally locked to Earth."
     },
     {
+        "id": "phobos",
+        "name": "Phobos",
+        "parent": "mars",
+        "radius_km": 11.2,
+        "semi_major_axis_km": 9377,
+        "orbital_period_days": 0.319,
+        "color_hex": "#8c7e6c",
+        "facts": "Orbits Mars faster than Mars rotates, rising in the west and setting in the east twice daily."
+    },
+    {
+        "id": "deimos",
+        "name": "Deimos",
+        "parent": "mars",
+        "radius_km": 6.2,
+        "semi_major_axis_km": 23460,
+        "orbital_period_days": 1.263,
+        "color_hex": "#a39585",
+        "facts": "Smooth, regolith-covered captured carbonaceous chondrite asteroid."
+    },
+    {
+        "id": "io",
         "name": "Io",
         "parent": "jupiter",
         "radius_km": 1821.6,
@@ -210,6 +308,7 @@ MOON_METADATA: List[Dict[str, Any]] = [
         "facts": "Most geologically active body in the solar system, with over 400 active volcanoes."
     },
     {
+        "id": "europa",
         "name": "Europa",
         "parent": "jupiter",
         "radius_km": 1560.8,
@@ -219,6 +318,7 @@ MOON_METADATA: List[Dict[str, Any]] = [
         "facts": "Harbors a global subterranean liquid water ocean beneath its fractured icy shell."
     },
     {
+        "id": "ganymede",
         "name": "Ganymede",
         "parent": "jupiter",
         "radius_km": 2634.1,
@@ -228,6 +328,7 @@ MOON_METADATA: List[Dict[str, Any]] = [
         "facts": "The largest moon in the Solar System, even bigger than the planet Mercury."
     },
     {
+        "id": "callisto",
         "name": "Callisto",
         "parent": "jupiter",
         "radius_km": 2410.3,
@@ -237,6 +338,7 @@ MOON_METADATA: List[Dict[str, Any]] = [
         "facts": "One of the most heavily cratered objects in existence, with an ancient ice-rock surface."
     },
     {
+        "id": "titan",
         "name": "Titan",
         "parent": "saturn",
         "radius_km": 2574.7,
@@ -244,6 +346,26 @@ MOON_METADATA: List[Dict[str, Any]] = [
         "orbital_period_days": 15.945,
         "color_hex": "#c99a4b",
         "facts": "The only moon with a dense nitrogen atmosphere and liquid methane/ethane lakes."
+    },
+    {
+        "id": "enceladus",
+        "name": "Enceladus",
+        "parent": "saturn",
+        "radius_km": 252.1,
+        "semi_major_axis_km": 238000,
+        "orbital_period_days": 1.370,
+        "color_hex": "#ffffff",
+        "facts": "Ejects plumes of water vapor and organic molecules from hydrothermal vents into Saturn's E ring."
+    },
+    {
+        "id": "triton",
+        "name": "Triton",
+        "parent": "neptune",
+        "radius_km": 1353.4,
+        "semi_major_axis_km": 354800,
+        "orbital_period_days": -5.877,
+        "color_hex": "#8bbad9",
+        "facts": "Only large moon in the solar system with a retrograde orbit, active nitrogen ice geysers."
     }
 ]
 
@@ -408,6 +530,54 @@ ARTIFICIAL_SATELLITES: List[Dict[str, Any]] = [
         "tle_line1": "1 43180U 18030A   24080.33445566  .00000112  00000+0  34512-4 0  9993",
         "tle_line2": "2 43180  86.4123 310.1234 0001890 110.1234 250.1234 14.34123456312458",
         "description": "Cross-linked low-earth orbit communications constellation providing 100% global voice and data coverage."
+    },
+    {
+        "id": "voyager-1",
+        "name": "Voyager 1 (Interstellar Probe)",
+        "norad_id": 10321,
+        "type": "Interstellar Deep Space Probe",
+        "altitude_km": 24200000000.0,  # ~162 AU from Earth
+        "speed_kms": 16.99,
+        "period_mins": 999999.0,
+        "inclination_deg": 35.5,
+        "category": "INTERSTELLAR",
+        "country": "USA (NASA / JPL)",
+        "launch_year": 1977,
+        "tle_line1": "1 10321U 77084A   24080.00000000  .00000000  00000+0  00000+0 0  9990",
+        "tle_line2": "2 10321  35.5000  45.0000 0000000   0.0000   0.0000  0.00000001     10",
+        "description": "Farthest human-made object from Earth, exploring interstellar space beyond the heliopause. Carries the Golden Record."
+    },
+    {
+        "id": "voyager-2",
+        "name": "Voyager 2 (Interstellar Probe)",
+        "norad_id": 10271,
+        "type": "Interstellar Deep Space Probe",
+        "altitude_km": 20300000000.0,  # ~136 AU from Earth
+        "speed_kms": 15.37,
+        "period_mins": 999999.0,
+        "inclination_deg": 78.8,
+        "category": "INTERSTELLAR",
+        "country": "USA (NASA / JPL)",
+        "launch_year": 1977,
+        "tle_line1": "1 10271U 77076A   24080.00000000  .00000000  00000+0  00000+0 0  9991",
+        "tle_line2": "2 10271  78.8000 120.0000 0000000   0.0000   0.0000  0.00000001     11",
+        "description": "Only spacecraft to have visited Uranus and Neptune during the Grand Tour of the Outer Planets."
+    },
+    {
+        "id": "parker-solar-probe",
+        "name": "Parker Solar Probe",
+        "norad_id": 43600,
+        "type": "Heliocentric Solar Probe",
+        "altitude_km": 6900000.0,  # Perihelion ~0.046 AU
+        "speed_kms": 192.0,
+        "period_mins": 126720.0,
+        "inclination_deg": 3.4,
+        "category": "HELIOCENTRIC",
+        "country": "USA (NASA / JHUAPL)",
+        "launch_year": 2018,
+        "tle_line1": "1 43600U 18065A   24080.00000000  .00000000  00000+0  00000+0 0  9992",
+        "tle_line2": "2 43600   3.4000  10.0000 0000000   0.0000   0.0000  0.01136364     12",
+        "description": "Fastest human-made object in history, 'touching the Sun' by flying directly through the solar corona."
     }
 ]
 
@@ -570,12 +740,25 @@ def get_moons():
         "moons": MOON_METADATA
     }
 
+@app.get("/api/galaxies")
+def get_galaxies():
+    """
+    Retrieves extragalactic catalog of deep space galaxies in the Local Group and beyond.
+    """
+    return {
+        "count": len(GALAXY_METADATA),
+        "galaxies": list(GALAXY_METADATA.values())
+    }
+
 @app.get("/api/object/{object_id}")
 def get_object_details(object_id: str):
     """
-    Returns granular details and physical breakdown for any planet, star, or satellite.
+    Returns granular details and physical breakdown for any galaxy, planet, star, moon, or satellite.
     """
     obj_id = object_id.lower()
+    if obj_id in GALAXY_METADATA:
+        return {"category": "galaxy", "data": GALAXY_METADATA[obj_id]}
+
     if obj_id in PLANET_METADATA:
         return {"category": "celestial_body", "data": PLANET_METADATA[obj_id]}
 
@@ -584,7 +767,7 @@ def get_object_details(object_id: str):
             return {"category": "artificial_satellite", "data": sat}
 
     for moon in MOON_METADATA:
-        if moon["name"].lower() == obj_id or moon["name"].lower().replace(" ", "_") == obj_id:
+        if moon.get("id", "").lower() == obj_id or moon["name"].lower() == obj_id or moon["name"].lower().replace(" ", "_") == obj_id:
             return {"category": "natural_satellite", "data": moon}
 
     raise HTTPException(status_code=404, detail=f"Celestial object '{object_id}' not found.")

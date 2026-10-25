@@ -61,6 +61,31 @@
       </div>
     </div>
 
+    <!-- Universal System Navigator Dropdown (Contains ALL Elements: Galaxies, Stars, Planets, Moons, Satellites) -->
+    <div class="navigator-dropdown-wrap" id="navigator-dropdown-wrap">
+      <button class="nav-dropdown-btn" id="nav-dropdown-btn" title="Open Catalog of All Galaxies, Planets, Moons & Satellites">
+        <span class="dropdown-icon">🧭</span>
+        <span class="dropdown-title">SYSTEM NAVIGATOR</span>
+        <span class="dropdown-badge">38 OBJECTS</span>
+        <span class="dropdown-arrow">▾</span>
+      </button>
+
+      <div class="nav-dropdown-menu" id="nav-dropdown-menu">
+        <div class="dropdown-search-box">
+          <svg class="search-icon" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+          <input type="text" id="navigator-search-input" placeholder="Search galaxies, planets, moons, satellites..." autocomplete="off">
+          <button class="search-clear-btn" id="search-clear-btn" title="Clear Search">✕</button>
+        </div>
+
+        <div class="dropdown-scroll-list" id="dropdown-scroll-list">
+          <!-- Populated dynamically and statically categorized -->
+        </div>
+      </div>
+    </div>
+
     <!-- Quick Celestial Target Navigation Bar -->
     <nav class="quick-nav" id="quick-nav" aria-label="Celestial Target Jump Bar">
       <button class="nav-pill galaxy-pill" id="nav-galaxy" data-target="galaxy" title="Zoom out to Milky Way Galaxy View">
@@ -84,16 +109,26 @@
       <button class="nav-pill sat-pill" id="nav-iss" data-target="iss">
         <span class="nav-pill-dot dot-sat"></span>ISS
       </button>
+      <button class="nav-pill sat-pill" id="nav-tiangong" data-target="tiangong">
+        <span class="nav-pill-dot dot-sat"></span>Tiangong
+      </button>
       <button class="nav-pill sat-pill" id="nav-jwst" data-target="jwst">
         <span class="nav-pill-dot dot-sat"></span>JWST
+      </button>
+      <button class="nav-pill sat-pill" id="nav-voyager1" data-target="voyager-1">
+        <span class="nav-pill-dot dot-sat"></span>Voyager 1
       </button>
       <button class="nav-pill sat-pill" id="nav-starlink" data-target="starlink">
         <span class="nav-pill-dot dot-sat"></span>Starlink
       </button>
     </nav>
 
-    <!-- Mission Clock & Backend Status -->
+    <!-- Visual Clarity & Mission Status -->
     <div class="mission-status">
+      <button class="clarity-toggle-btn" id="btn-clarity" title="Toggle Crystal Clarity Visual Mode">
+        <span class="clarity-icon">✨</span>
+        <span class="clarity-text" id="clarity-status">CRISP VIEW</span>
+      </button>
       <div class="status-indicator">
         <span class="status-dot" id="backend-status-dot"></span>
         <span class="status-text" id="backend-status-text">SYNCING EPHEMERIS</span>
@@ -197,16 +232,40 @@
 
   <!-- Bottom Flight Controls & Radar Toggles -->
   <footer class="hud-footer">
-    <!-- Simulation Time Controls -->
-    <div class="hud-panel time-panel">
-      <span class="panel-label">TIME WARP</span>
-      <div class="time-controls">
-        <button class="time-btn" data-speed="0" id="btn-pause" title="Freeze Simulation">⏸</button>
-        <button class="time-btn" data-speed="0.2">0.2x</button>
-        <button class="time-btn active" data-speed="1.0">1x (Real)</button>
-        <button class="time-btn" data-speed="5.0">5x</button>
-        <button class="time-btn" data-speed="25.0">25x</button>
-        <button class="time-btn" data-speed="100.0">100x</button>
+    <!-- Advanced Simulation Speed Flight Deck -->
+    <div class="hud-panel time-panel-advanced">
+      <div class="time-header-row">
+        <div class="panel-label-group">
+          <span class="panel-label">TIME ACCELERATION</span>
+          <span class="time-direction-badge" id="time-direction-badge">FORWARD</span>
+        </div>
+        <div class="speed-rate-readout" id="speed-rate-readout">1.0x &bull; REAL TIME</div>
+      </div>
+
+      <div class="speed-scrubber-row">
+        <button class="transport-btn" id="btn-reverse" title="Reverse Time Flow">⏪ REVERSE</button>
+        <button class="transport-btn play-pause-btn" id="btn-play-pause" title="Play / Pause Simulation">⏸ PAUSE</button>
+        <button class="transport-btn" id="btn-step" title="Step Forward +1 Earth Day">⏩ +1 DAY</button>
+
+        <div class="slider-wrapper">
+          <input type="range" id="time-warp-slider" min="-3" max="4" step="0.05" value="0" title="Scrub Time Acceleration">
+          <div class="slider-scale-labels">
+            <span>-1000x</span>
+            <span>-10x</span>
+            <span class="slider-zero-mark">0 (FREEZE)</span>
+            <span>1x</span>
+            <span>100x</span>
+            <span>10,000x</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="time-preset-pills">
+        <button class="preset-pill active" data-speed="1.0">1x (Real)</button>
+        <button class="preset-pill" data-speed="10.0">10x</button>
+        <button class="preset-pill" data-speed="100.0">100x</button>
+        <button class="preset-pill" data-speed="1000.0">1,000x</button>
+        <button class="preset-pill" data-speed="10000.0">10,000x (Warp)</button>
       </div>
     </div>
 
