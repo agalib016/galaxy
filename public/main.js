@@ -1,14 +1,15 @@
 /**
- * HELIOS 3D — MILKY WAY TO SOLAR SYSTEM & SATELLITE SIMULATOR
+ * HELIOS 3D — ASTROPHYSICALLY REALISTIC SOLAR SYSTEM & SATELLITE SIMULATOR
  * Designed & Developed by Asadullahil Galib
  *
- * FEATURING:
- * - 3D Logarithmic Milky Way Spiral Galaxy (55,000 stars & galactic core)
- * - Seamless Cosmic Scale Zoom (Galaxy -> Solar System -> Planetary Orbits -> Satellites)
- * - Ultra-high-resolution original NASA/ESA planetary texture maps
- * - Artificial Satellite Fleet: ISS, JWST (L2), Starlink, GPS, GEO Belt, Hubble, NOAA
+ * REALISM & SCIENTIFIC ENHANCEMENTS:
+ * - 3D Barred Spiral Milky Way Galaxy (65,000 stars, central bar, H-II starburst nebulae, dust lanes)
+ * - Earth Photorealism: Day/Night Terminator, NASA City Lights, Specular Ocean Sun Glint, Rayleigh Atmosphere
+ * - The Sun: Eddington-Barbier Limb Darkening, Dynamic Convective Photosphere, Pulsing Solar Corona
+ * - Saturn: Cassini-Grade Radiometric Ring System (D, C, B, Cassini Division, A, Encke Gap, F Ring)
+ * - Artificial Satellite Fleet: ISS (Sun-tracking solar arrays & orbit trail), JWST (Sun-Earth L2),
+ *   Hubble, Starlink Swarm, GPS Navstar Constellation, Geostationary Telecom Belt
  * - Real-time geocentric vectors and sub-satellite geographic coordinates (Lat/Lon)
- * - Raycasting, smooth camera tweening, lockstep orbital tracking
  */
 
 import * as THREE from 'three';
@@ -22,7 +23,6 @@ const DISTANCE_SCALE = 38.0;     // AU to Scene Units multiplier
 const PLANET_SIZE_SCALE = 1.0;   // Scaling factor for planet radii
 const MOON_DISTANCE_SCALE = 4.2; // Scaling factor for moon orbit radii
 
-// Initial Galactic viewpoint (Far outer cosmos overlooking the Milky Way)
 const INITIAL_GALAXY_POS = new THREE.Vector3(0, 1600, 2400);
 const SOLAR_SYSTEM_OVERVIEW_POS = new THREE.Vector3(0, 75, 185);
 
@@ -30,7 +30,7 @@ const CELESTIAL_CONFIG = {
   sun: {
     id: 'sun',
     name: 'The Sun',
-    category: 'STAR / G2V',
+    category: 'STAR / G2V (YELLOW DWARF)',
     radius: 7.2,
     color: 0xffaa00,
     rotationSpeed: 0.002,
@@ -47,7 +47,9 @@ const CELESTIAL_CONFIG = {
     inclinationDeg: 7.0,
     rotationSpeed: 0.004,
     color: 0x999999,
-    textureFile: 'textures/mercury.jpg'
+    textureFile: 'textures/mercury.jpg',
+    bumpFile: 'textures/mercury_bump.jpg',
+    bumpScale: 0.06
   },
   venus: {
     id: 'venus',
@@ -60,12 +62,13 @@ const CELESTIAL_CONFIG = {
     inclinationDeg: 3.39,
     rotationSpeed: -0.002,
     color: 0xe3bb76,
-    textureFile: 'textures/venus.jpg'
+    textureFile: 'textures/venus.jpg',
+    atmosphereColor: 0xf5e6ba
   },
   earth: {
     id: 'earth',
     name: 'Earth',
-    category: 'TERRESTRIAL PLANET',
+    category: 'TERRESTRIAL PLANET (OASIS OF LIFE)',
     a_au: 1.000,
     radius: 1.5,
     orbitalPeriodDays: 365.25,
@@ -75,12 +78,16 @@ const CELESTIAL_CONFIG = {
     rotationSpeed: 0.015,
     color: 0x2277bb,
     textureFile: 'textures/earth_texture.jpg',
-    cloudsFile: 'textures/earth_clouds.jpg'
+    nightFile: 'textures/earth_night.jpg',
+    cloudsFile: 'textures/earth_clouds.jpg',
+    specularFile: 'textures/earth_specular.jpg',
+    bumpFile: 'textures/earth_bump.jpg',
+    bumpScale: 0.08
   },
   mars: {
     id: 'mars',
     name: 'Mars',
-    category: 'TERRESTRIAL PLANET',
+    category: 'TERRESTRIAL PLANET (RED PLANET)',
     a_au: 1.524,
     radius: 0.95,
     orbitalPeriodDays: 686.98,
@@ -89,17 +96,21 @@ const CELESTIAL_CONFIG = {
     axialTiltDeg: 25.19,
     rotationSpeed: 0.014,
     color: 0xcf533a,
-    textureFile: 'textures/mars.jpg'
+    textureFile: 'textures/mars.jpg',
+    bumpFile: 'textures/mars_bump.jpg',
+    bumpScale: 0.06,
+    atmosphereColor: 0xdf8464
   },
   jupiter: {
     id: 'jupiter',
     name: 'Jupiter',
-    category: 'GAS GIANT',
+    category: 'GAS GIANT (KING OF PLANETS)',
     a_au: 2.85,
     radius: 4.2,
     orbitalPeriodDays: 4332.59,
     eccentricity: 0.048,
     inclinationDeg: 1.3,
+    axialTiltDeg: 3.13,
     rotationSpeed: 0.035,
     color: 0xd6a97a,
     textureFile: 'textures/jupiter.jpg'
@@ -107,7 +118,7 @@ const CELESTIAL_CONFIG = {
   saturn: {
     id: 'saturn',
     name: 'Saturn',
-    category: 'GAS GIANT (RINGED)',
+    category: 'GAS GIANT (RINGED JEWEL)',
     a_au: 4.15,
     radius: 3.5,
     orbitalPeriodDays: 10759.22,
@@ -117,7 +128,7 @@ const CELESTIAL_CONFIG = {
     rotationSpeed: 0.032,
     color: 0xe0cda9,
     textureFile: 'textures/saturn.jpg',
-    ringsFile: 'textures/saturn_rings.png'
+    ringsFile: 'textures/saturn_ring_alpha.png'
   },
   uranus: {
     id: 'uranus',
@@ -136,7 +147,7 @@ const CELESTIAL_CONFIG = {
   neptune: {
     id: 'neptune',
     name: 'Neptune',
-    category: 'ICE GIANT',
+    category: 'ICE GIANT (WINDSWEPT)',
     a_au: 7.10,
     radius: 2.3,
     orbitalPeriodDays: 60189.0,
@@ -150,54 +161,7 @@ const CELESTIAL_CONFIG = {
 };
 
 // ==============================================================================
-// 2. PROCEDURAL TEXTURE GENERATOR (ROBUST BACKUP SYSTEM)
-// ==============================================================================
-class ProceduralTextureEngine {
-  static generatePlanetTexture(type) {
-    const canvas = document.createElement('canvas');
-    canvas.width = 1024;
-    canvas.height = 512;
-    const ctx = canvas.getContext('2d');
-    const w = canvas.width, h = canvas.height;
-
-    if (type === 'sun') {
-      const grad = ctx.createLinearGradient(0, 0, w, h);
-      grad.addColorStop(0, '#ff4800');
-      grad.addColorStop(0.5, '#ffaa00');
-      grad.addColorStop(1, '#ff6600');
-      ctx.fillStyle = grad;
-      ctx.fillRect(0, 0, w, h);
-    } else {
-      ctx.fillStyle = type === 'neptune' ? '#2255dd' : '#68bcc9';
-      ctx.fillRect(0, 0, w, h);
-    }
-    const texture = new THREE.CanvasTexture(canvas);
-    texture.colorSpace = THREE.SRGBColorSpace;
-    return texture;
-  }
-
-  static generateSaturnRingTexture() {
-    const canvas = document.createElement('canvas');
-    canvas.width = 1024;
-    canvas.height = 64;
-    const ctx = canvas.getContext('2d');
-    const grad = ctx.createLinearGradient(0, 0, canvas.width, 0);
-    grad.addColorStop(0.0, 'rgba(0, 0, 0, 0)');
-    grad.addColorStop(0.2, 'rgba(195, 175, 145, 0.6)');
-    grad.addColorStop(0.5, 'rgba(40, 30, 20, 0.05)'); // Cassini Division
-    grad.addColorStop(0.55, 'rgba(215, 195, 160, 0.9)');
-    grad.addColorStop(0.85, 'rgba(165, 145, 115, 0.5)');
-    grad.addColorStop(1.0, 'rgba(0, 0, 0, 0)');
-    ctx.fillStyle = grad;
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    const texture = new THREE.CanvasTexture(canvas);
-    texture.colorSpace = THREE.SRGBColorSpace;
-    return texture;
-  }
-}
-
-// ==============================================================================
-// 3. MAIN SIMULATION ENGINE
+// 2. MAIN SIMULATION ENGINE
 // ==============================================================================
 class HeliosCosmicApplication {
   constructor() {
@@ -208,7 +172,7 @@ class HeliosCosmicApplication {
     this.orbitLines = [];
 
     // Scale State
-    this.currentScaleLevel = 'GALAXY'; // 'GALAXY', 'INTERSTELLAR', 'SOLAR', 'PROXIMITY'
+    this.currentScaleLevel = 'GALAXY';
     this.timeScale = 1.0;
     this.simulationDays = 0.0;
     this.isPaused = false;
@@ -232,7 +196,7 @@ class HeliosCosmicApplication {
     this.initThree();
     this.initLights();
     this.initDeepSkyMilkyWay();
-    this.initMilkyWaySpiralGalaxy(); // 55,000 Particle Spiral Galaxy
+    this.initBarredSpiralGalaxy(); // 65,000 Particle Barred Spiral Galaxy
     this.initSun();
     this.initPlanetsAndMoons();
     this.initArtificialSatellites();
@@ -249,7 +213,7 @@ class HeliosCosmicApplication {
   }
 
   // ----------------------------------------------------------------------------
-  // Three.js Scene, Camera, Renderer
+  // Three.js Scene, Camera, High-Precision WebGL Renderer
   // ----------------------------------------------------------------------------
   initThree() {
     this.scene = new THREE.Scene();
@@ -258,9 +222,8 @@ class HeliosCosmicApplication {
       45,
       window.innerWidth / window.innerHeight,
       0.1,
-      80000
+      100000
     );
-    // Start at Milky Way Galaxy scale!
     this.camera.position.copy(INITIAL_GALAXY_POS);
 
     this.renderer = new THREE.WebGLRenderer({
@@ -271,13 +234,15 @@ class HeliosCosmicApplication {
     this.renderer.setSize(window.innerWidth, window.innerHeight);
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    this.renderer.toneMappingExposure = 1.2;
+    this.renderer.toneMappingExposure = 1.15;
+    this.renderer.shadowMap.enabled = true;
+    this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     this.container.appendChild(this.renderer.domElement);
 
     this.controls = new OrbitControls(this.camera, this.renderer.domElement);
     this.controls.enableDamping = true;
     this.controls.dampingFactor = 0.05;
-    this.controls.maxDistance = 6000;
+    this.controls.maxDistance = 6500;
     this.controls.minDistance = 2.0;
 
     window.addEventListener('resize', () => {
@@ -288,23 +253,25 @@ class HeliosCosmicApplication {
   }
 
   // ----------------------------------------------------------------------------
-  // Lighting
+  // Lighting: Sunlight & Cosmic Contrast
   // ----------------------------------------------------------------------------
   initLights() {
-    this.sunLight = new THREE.PointLight(0xffffff, 2.8, 0, 0);
+    this.sunLight = new THREE.PointLight(0xfff8ee, 3.0, 0, 0);
     this.sunLight.position.set(0, 0, 0);
+    this.sunLight.castShadow = true;
     this.scene.add(this.sunLight);
 
-    const ambientLight = new THREE.AmbientLight(0x283854, 0.95);
+    // Subtle cosmic ambient light for soft nightside visibility
+    const ambientLight = new THREE.AmbientLight(0x1a2638, 0.65);
     this.scene.add(ambientLight);
   }
 
   // ----------------------------------------------------------------------------
-  // Deep Sky Skydome & Outer Starfield
+  // Deep Sky Skydome (360 Equirectangular Star Background)
   // ----------------------------------------------------------------------------
   initDeepSkyMilkyWay() {
-    const skydomeGeo = new THREE.SphereGeometry(30000, 64, 32);
-    const skydomeMat = new THREE.MeshBasicMaterial({ side: THREE.BackSide, color: 0x050812 });
+    const skydomeGeo = new THREE.SphereGeometry(45000, 64, 32);
+    const skydomeMat = new THREE.MeshBasicMaterial({ side: THREE.BackSide, color: 0x03050c });
     const skydome = new THREE.Mesh(skydomeGeo, skydomeMat);
     this.scene.add(skydome);
 
@@ -317,55 +284,70 @@ class HeliosCosmicApplication {
   }
 
   // ----------------------------------------------------------------------------
-  // 3D Logarithmic Milky Way Spiral Galaxy Model (55,000 Particle Arms)
+  // 3D Barred Spiral Milky Way Galaxy (65,000 Particles + Dust Lanes + H-II Regions)
   // ----------------------------------------------------------------------------
-  initMilkyWaySpiralGalaxy() {
+  initBarredSpiralGalaxy() {
     this.galaxyGroup = new THREE.Group();
 
-    const starCount = 55000;
-    const arms = 4; // 4 Logarithmic Spiral Arms: Perseus, Scutum-Centaurus, Sagittarius, Orion
-    const maxRadius = 1400;
+    const starCount = 65000;
+    const arms = 4; // 4 major arms: Perseus, Scutum-Centaurus, Sagittarius, Orion
+    const maxRadius = 1500;
 
     const positions = new Float32Array(starCount * 3);
     const colors = new Float32Array(starCount * 3);
 
-    // Galactic Core Bright Color (Yellow-White / Gold)
-    const colorCore = new THREE.Color('#fff2cc');
-    // Spiral Arm Young Stellar Color (Electric Blue / Cyan)
-    const colorArm = new THREE.Color('#38bdf8');
-    // Outer Halo / Dust Color (Violet / Magenta)
-    const colorOuter = new THREE.Color('#c084fc');
+    const colorCore = new THREE.Color('#fff4cc');    // Yellow-white core
+    const colorArm = new THREE.Color('#38bdf8');     // Young electric blue OB stars
+    const colorHII = new THREE.Color('#f43f5e');     // Pink H-II starburst nebulae
+    const colorDust = new THREE.Color('#312e81');    // Dark interstellar dust absorption
 
     for (let i = 0; i < starCount; i++) {
-      // Radial distribution with density concentrated towards galactic center
-      const r = Math.pow(Math.random(), 2.2) * maxRadius;
-      const armIndex = i % arms;
-      const armAngle = (armIndex / arms) * Math.PI * 2;
-      
-      // Logarithmic spiral progression: theta = log(r) / b
-      const spiralTheta = Math.log(r + 1.0) * 1.8 + armAngle;
+      // 1. Central Barred Structure vs Outer Spiral Arms
+      const isBar = Math.random() < 0.18;
+      let x, y, z;
+      const mixedColor = colorCore.clone();
 
-      // Random dispersion around the arm width
-      const spreadX = (Math.random() - 0.5) * (r * 0.22 + 15);
-      const spreadY = (Math.random() - 0.5) * (r * 0.08 + 8) * (1.0 - r / maxRadius);
-      const spreadZ = (Math.random() - 0.5) * (r * 0.22 + 15);
+      if (isBar) {
+        // Central Galactic Bar tilted at ~30 degrees
+        const barLength = (Math.random() - 0.5) * 380;
+        const barWidth = (Math.random() - 0.5) * 75 * (1.0 - Math.abs(barLength) / 220);
+        const barAngle = THREE.MathUtils.degToRad(30.0);
 
-      const x = Math.cos(spiralTheta) * r + spreadX;
-      const y = spreadY;
-      const z = Math.sin(spiralTheta) * r + spreadZ;
+        x = barLength * Math.cos(barAngle) - barWidth * Math.sin(barAngle);
+        y = (Math.random() - 0.5) * 25;
+        z = barLength * Math.sin(barAngle) + barWidth * Math.cos(barAngle);
+
+        mixedColor.copy(colorCore);
+      } else {
+        // Logarithmic spiral arms
+        const r = Math.pow(Math.random(), 2.1) * maxRadius;
+        const armIndex = i % arms;
+        const armAngle = (armIndex / arms) * Math.PI * 2;
+        const spiralTheta = Math.log(r + 1.0) * 1.85 + armAngle;
+
+        const spreadX = (Math.random() - 0.5) * (r * 0.2 + 18);
+        const spreadY = (Math.random() - 0.5) * (r * 0.07 + 8) * (1.0 - r / maxRadius);
+        const spreadZ = (Math.random() - 0.5) * (r * 0.2 + 18);
+
+        x = Math.cos(spiralTheta) * r + spreadX;
+        y = spreadY;
+        z = Math.sin(spiralTheta) * r + spreadZ;
+
+        const progress = r / maxRadius;
+        if (progress < 0.3) {
+          mixedColor.lerp(colorArm, progress / 0.3);
+        } else if (Math.random() < 0.12) {
+          mixedColor.copy(colorHII); // H-II glowing pink emission region!
+        } else if (Math.random() < 0.18) {
+          mixedColor.copy(colorDust); // Dark dust absorption lane!
+        } else {
+          mixedColor.copy(colorArm).lerp(new THREE.Color('#c084fc'), (progress - 0.3) / 0.7);
+        }
+      }
 
       positions[i * 3] = x;
       positions[i * 3 + 1] = y;
       positions[i * 3 + 2] = z;
-
-      // Color gradient from bright warm core to electric blue and outer nebula violet
-      const mixedColor = colorCore.clone();
-      const progress = r / maxRadius;
-      if (progress < 0.35) {
-        mixedColor.lerp(colorArm, progress / 0.35);
-      } else {
-        mixedColor.copy(colorArm).lerp(colorOuter, (progress - 0.35) / 0.65);
-      }
 
       colors[i * 3] = mixedColor.r;
       colors[i * 3 + 1] = mixedColor.g;
@@ -376,24 +358,24 @@ class HeliosCosmicApplication {
     galaxyGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
     galaxyGeo.setAttribute('color', new THREE.BufferAttribute(colors, 3));
 
-    // Circular crisp particle texture
+    // Particle texture
     const pCanvas = document.createElement('canvas');
     pCanvas.width = 16;
     pCanvas.height = 16;
     const pCtx = pCanvas.getContext('2d');
     const grad = pCtx.createRadialGradient(8, 8, 0, 8, 8, 8);
     grad.addColorStop(0, 'rgba(255, 255, 255, 1)');
-    grad.addColorStop(0.4, 'rgba(180, 220, 255, 0.7)');
+    grad.addColorStop(0.35, 'rgba(190, 225, 255, 0.75)');
     grad.addColorStop(1, 'rgba(0, 0, 0, 0)');
     pCtx.fillStyle = grad;
     pCtx.fillRect(0, 0, 16, 16);
 
     const galaxyMat = new THREE.PointsMaterial({
-      size: 2.2,
+      size: 2.3,
       map: new THREE.CanvasTexture(pCanvas),
       vertexColors: true,
       transparent: true,
-      opacity: 0.85,
+      opacity: 0.88,
       blending: THREE.AdditiveBlending,
       depthWrite: false
     });
@@ -401,18 +383,18 @@ class HeliosCosmicApplication {
     this.galaxyPoints = new THREE.Points(galaxyGeo, galaxyMat);
     this.galaxyGroup.add(this.galaxyPoints);
 
-    // Galactic Core Supermassive Bulge (Sagittarius A*)
-    const coreGeo = new THREE.SphereGeometry(45, 32, 32);
+    // Galactic Core Supermassive Center (Sagittarius A*)
+    const coreGeo = new THREE.SphereGeometry(48, 32, 32);
     const coreMat = new THREE.MeshBasicMaterial({
       color: 0xffeedd,
       transparent: true,
-      opacity: 0.8,
+      opacity: 0.85,
       blending: THREE.AdditiveBlending
     });
     this.galaxyCore = new THREE.Mesh(coreGeo, coreMat);
     this.galaxyGroup.add(this.galaxyCore);
 
-    // Orion Arm Marker (Pointing directly to Solar System location)
+    // Orion Arm Target Beacon (Pulsing marker pointing to Solar System)
     const markerGeo = new THREE.RingGeometry(8, 12, 32);
     const markerMat = new THREE.MeshBasicMaterial({
       color: 0x00f0ff,
@@ -422,45 +404,77 @@ class HeliosCosmicApplication {
     });
     this.solarMarker = new THREE.Mesh(markerGeo, markerMat);
     this.solarMarker.rotation.x = Math.PI / 2;
-    this.solarMarker.position.set(0, 0, 0); // Sun is at center
+    this.solarMarker.position.set(0, 0, 0);
     this.galaxyGroup.add(this.solarMarker);
 
     this.scene.add(this.galaxyGroup);
   }
 
   // ----------------------------------------------------------------------------
-  // The Sun: Real Texture, Corona Shader, Glow
+  // The Sun: Eddington-Barbier Limb Darkening & Animated Solar Convection
   // ----------------------------------------------------------------------------
   initSun() {
     const sunData = CELESTIAL_CONFIG.sun;
     const sunGeo = new THREE.SphereGeometry(sunData.radius, 64, 64);
 
-    const sunMat = new THREE.MeshBasicMaterial({
-      color: 0xffffff
-    });
+    // Load authentic NASA SDO Solar Photosphere Texture
+    const sunTex = this.textureLoader.load(sunData.textureFile);
+    sunTex.colorSpace = THREE.SRGBColorSpace;
 
-    // Load authentic high-res texture
-    this.textureLoader.load(
-      sunData.textureFile,
-      (tex) => {
-        tex.colorSpace = THREE.SRGBColorSpace;
-        sunMat.map = tex;
-        sunMat.needsUpdate = true;
+    // Physically accurate Limb Darkening & Convective Plasma Shader
+    const sunMat = new THREE.ShaderMaterial({
+      uniforms: {
+        sunTexture: { value: sunTex },
+        time: { value: 0 }
       },
-      undefined,
-      () => {
-        sunMat.map = ProceduralTextureEngine.generatePlanetTexture('sun');
-        sunMat.needsUpdate = true;
-      }
-    );
+      vertexShader: `
+        varying vec2 vUv;
+        varying vec3 vWorldNormal;
+        varying vec3 vWorldPosition;
+        void main() {
+          vUv = uv;
+          vec4 worldPos = modelMatrix * vec4(position, 1.0);
+          vWorldPosition = worldPos.xyz;
+          vWorldNormal = normalize((modelMatrix * vec4(normal, 0.0)).xyz);
+          gl_Position = projectionMatrix * viewMatrix * worldPos;
+        }
+      `,
+      fragmentShader: `
+        uniform sampler2D sunTexture;
+        uniform float time;
+        varying vec2 vUv;
+        varying vec3 vWorldNormal;
+        varying vec3 vWorldPosition;
+
+        void main() {
+          // Dynamic dual-frequency convective plasma flow
+          vec2 uv1 = vec2(vUv.x + time * 0.0025, vUv.y);
+          vec2 uv2 = vec2(vUv.x - time * 0.0018, vUv.y + sin(vUv.x * 24.0 + time * 1.5) * 0.002);
+          vec3 tex1 = texture2D(sunTexture, uv1).rgb;
+          vec3 tex2 = texture2D(sunTexture, uv2).rgb;
+          vec3 baseTex = mix(tex1, tex2, 0.38);
+
+          // Eddington-Barbier astronomical limb darkening
+          vec3 viewDir = normalize(cameraPosition - vWorldPosition);
+          float mu = max(dot(vWorldNormal, viewDir), 0.0);
+          float limbFactor = 0.35 + 0.65 * pow(mu, 0.62);
+
+          vec3 centerColor = baseTex * vec3(1.2, 1.08, 0.95);
+          vec3 edgeColor = vec3(0.88, 0.24, 0.03) * baseTex;
+          vec3 finalColor = mix(edgeColor, centerColor, limbFactor);
+
+          gl_FragColor = vec4(finalColor, 1.0);
+        }
+      `
+    });
 
     this.sunMesh = new THREE.Mesh(sunGeo, sunMat);
     this.sunMesh.userData = { id: 'sun', ...sunData };
     this.scene.add(this.sunMesh);
     this.interactiveObjects.push(this.sunMesh);
 
-    // Dynamic Corona Glow Shell
-    const coronaGeo = new THREE.SphereGeometry(sunData.radius * 1.3, 48, 48);
+    // Dynamic Pulsing Solar Corona Flare Shell
+    const coronaGeo = new THREE.SphereGeometry(sunData.radius * 1.34, 48, 48);
     const coronaMat = new THREE.ShaderMaterial({
       uniforms: { time: { value: 0 } },
       vertexShader: `
@@ -474,9 +488,10 @@ class HeliosCosmicApplication {
         varying vec3 vNormal;
         uniform float time;
         void main() {
-          float intensity = pow(0.68 - dot(vNormal, vec3(0.0, 0.0, 1.0)), 2.4);
-          vec3 coronaColor = mix(vec3(1.0, 0.75, 0.2), vec3(1.0, 0.3, 0.05), intensity * 0.8);
-          gl_FragColor = vec4(coronaColor, intensity * 0.9);
+          float intensity = pow(0.72 - dot(vNormal, vec3(0.0, 0.0, 1.0)), 2.2);
+          float flareFlicker = 0.9 + 0.1 * sin(time * 3.0 + vNormal.x * 12.0);
+          vec3 coronaColor = mix(vec3(1.0, 0.72, 0.15), vec3(1.0, 0.25, 0.02), intensity * 0.8) * flareFlicker;
+          gl_FragColor = vec4(coronaColor, intensity * 0.92);
         }
       `,
       side: THREE.BackSide,
@@ -488,7 +503,168 @@ class HeliosCosmicApplication {
   }
 
   // ----------------------------------------------------------------------------
-  // Planets, Moons & High-Resolution Textures
+  // Earth Photorealism: Day/Night Terminator, City Lights, Relief Bump, Specular Ocean Sun Glint
+  // ----------------------------------------------------------------------------
+  createEarthPhotorealisticMesh(config, distance) {
+    const earthGeo = new THREE.SphereGeometry(config.radius, 64, 64);
+
+    const dayTex = this.textureLoader.load(config.textureFile);
+    dayTex.colorSpace = THREE.SRGBColorSpace;
+    const nightTex = this.textureLoader.load(config.nightFile);
+    nightTex.colorSpace = THREE.SRGBColorSpace;
+    const specTex = this.textureLoader.load(config.specularFile);
+    specTex.colorSpace = THREE.SRGBColorSpace;
+    const bumpTex = this.textureLoader.load(config.bumpFile);
+
+    // Advanced Day/Night, Relief Bump & Ocean Specular Shader
+    const earthMat = new THREE.ShaderMaterial({
+      uniforms: {
+        dayTexture: { value: dayTex },
+        nightTexture: { value: nightTex },
+        specularMap: { value: specTex },
+        bumpMap: { value: bumpTex },
+        sunPosition: { value: new THREE.Vector3(0, 0, 0) }
+      },
+      vertexShader: `
+        varying vec2 vUv;
+        varying vec3 vWorldNormal;
+        varying vec3 vWorldPosition;
+        void main() {
+          vUv = uv;
+          vec4 worldPos = modelMatrix * vec4(position, 1.0);
+          vWorldPosition = worldPos.xyz;
+          vWorldNormal = normalize((modelMatrix * vec4(normal, 0.0)).xyz);
+          gl_Position = projectionMatrix * viewMatrix * worldPos;
+        }
+      `,
+      fragmentShader: `
+        uniform sampler2D dayTexture;
+        uniform sampler2D nightTexture;
+        uniform sampler2D specularMap;
+        uniform sampler2D bumpMap;
+        uniform vec3 sunPosition;
+
+        varying vec2 vUv;
+        varying vec3 vWorldNormal;
+        varying vec3 vWorldPosition;
+
+        void main() {
+          vec3 sunDir = normalize(sunPosition - vWorldPosition);
+          vec3 viewDir = normalize(cameraPosition - vWorldPosition);
+
+          // Fast Sobel topographic mountain relief from NASA bump map
+          float dUv = 1.0 / 2048.0;
+          float hL = texture2D(bumpMap, vUv - vec2(dUv, 0.0)).r;
+          float hR = texture2D(bumpMap, vUv + vec2(dUv, 0.0)).r;
+          float hD = texture2D(bumpMap, vUv - vec2(0.0, dUv)).r;
+          float hU = texture2D(bumpMap, vUv + vec2(0.0, dUv)).r;
+          float specMask = texture2D(specularMap, vUv).r;
+
+          // Only landmasses have mountain relief bump perturbation; oceans remain mirror-flat
+          vec3 pert = vec3((hL - hR), (hD - hU), 0.0) * 0.16 * (1.0 - specMask);
+          vec3 normal = normalize(vWorldNormal + pert);
+
+          float NdotL = dot(normal, sunDir);
+          
+          // Day / Night smooth blend through golden hour twilight terminator
+          float dayFactor = clamp((NdotL + 0.12) / 0.24, 0.0, 1.0);
+
+          vec3 dayColor = texture2D(dayTexture, vUv).rgb;
+          // NASA Black Marble nighttime city lights
+          vec3 nightColor = texture2D(nightTexture, vUv).rgb * 2.2 * (1.0 - dayFactor);
+
+          // Specular ocean sun glint with Fresnel reflection
+          vec3 halfVec = normalize(sunDir + viewDir);
+          float NdotH = max(dot(normal, halfVec), 0.0);
+          float fresnel = 0.04 + 0.96 * pow(1.0 - max(dot(normal, viewDir), 0.0), 5.0);
+          float specular = pow(NdotH, 60.0) * specMask * fresnel * 2.4 * dayFactor;
+
+          // Sunset / Sunrise atmospheric crimson-gold tint along the terminator line
+          float twilight = smoothstep(0.0, 0.22, 1.0 - abs(NdotL * 4.5)) * (1.0 - abs(NdotL));
+          vec3 twilightColor = vec3(1.0, 0.42, 0.12) * twilight * 0.55;
+
+          vec3 surfaceColor = mix(nightColor, dayColor, dayFactor) + vec3(specular) + twilightColor;
+
+          // Physical Rayleigh atmospheric limb scattering
+          float rim = 1.0 - max(dot(vWorldNormal, viewDir), 0.0);
+          vec3 atmosphereGlow = vec3(0.22, 0.62, 1.0) * pow(rim, 3.2) * max(NdotL * 0.8 + 0.2, 0.0);
+
+          gl_FragColor = vec4(surfaceColor + atmosphereGlow, 1.0);
+        }
+      `
+    });
+
+    const earthMesh = new THREE.Mesh(earthGeo, earthMat);
+    earthMesh.rotation.z = THREE.MathUtils.degToRad(config.axialTiltDeg);
+    earthMesh.userData = { id: 'earth', name: config.name, config, distance, radius: config.radius };
+
+    // Dynamic Rotating Cloud Layer (1.018x radius)
+    const cloudGeo = new THREE.SphereGeometry(config.radius * 1.018, 64, 64);
+    const cloudTex = this.textureLoader.load(config.cloudsFile);
+    cloudTex.colorSpace = THREE.SRGBColorSpace;
+    const cloudMat = new THREE.MeshStandardMaterial({
+      map: cloudTex,
+      transparent: true,
+      opacity: 0.72,
+      blending: THREE.NormalBlending
+    });
+    this.earthClouds = new THREE.Mesh(cloudGeo, cloudMat);
+    earthMesh.add(this.earthClouds);
+
+    // Thin Outer Blue Atmospheric Glow Shell (1.035x radius)
+    const atmoGeo = new THREE.SphereGeometry(config.radius * 1.035, 48, 48);
+    const atmoMat = new THREE.ShaderMaterial({
+      vertexShader: `
+        varying vec3 vNormal;
+        void main() {
+          vNormal = normalize(normalMatrix * normal);
+          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        }
+      `,
+      fragmentShader: `
+        varying vec3 vNormal;
+        void main() {
+          float intensity = pow(0.8 - dot(vNormal, vec3(0.0, 0.0, 1.0)), 2.8);
+          gl_FragColor = vec4(0.25, 0.65, 1.0, intensity * 0.75);
+        }
+      `,
+      side: THREE.BackSide,
+      blending: THREE.AdditiveBlending,
+      transparent: true
+    });
+    earthMesh.add(new THREE.Mesh(atmoGeo, atmoMat));
+
+    // Natural Moon (Luna) with authentic LOLA crater relief bump map
+    const moonGeo = new THREE.SphereGeometry(0.42, 48, 48);
+    const moonTex = this.textureLoader.load('textures/moon.jpg');
+    moonTex.colorSpace = THREE.SRGBColorSpace;
+    const moonBump = this.textureLoader.load('textures/moon_bump.jpg');
+    const moonMat = new THREE.MeshStandardMaterial({
+      map: moonTex,
+      bumpMap: moonBump,
+      bumpScale: 0.07,
+      roughness: 0.95,
+      metalness: 0.0
+    });
+    const moonMesh = new THREE.Mesh(moonGeo, moonMat);
+    moonMesh.userData = {
+      id: 'moon',
+      name: 'The Moon (Luna)',
+      category: 'NATURAL SATELLITE',
+      parentName: 'earth',
+      distance: 3.8 * MOON_DISTANCE_SCALE,
+      speed: 0.035,
+      angle: 0
+    };
+    this.scene.add(moonMesh);
+    this.moons.push({ mesh: moonMesh, parent: earthMesh });
+    this.interactiveObjects.push(moonMesh);
+
+    return earthMesh;
+  }
+
+  // ----------------------------------------------------------------------------
+  // Planets, Moons & High-Resolution Maps with NASA Elevation Relief
   // ----------------------------------------------------------------------------
   initPlanetsAndMoons() {
     const planetKeys = ['mercury', 'venus', 'earth', 'mars', 'jupiter', 'saturn', 'uranus', 'neptune'];
@@ -497,7 +673,7 @@ class HeliosCosmicApplication {
       const config = CELESTIAL_CONFIG[key];
       const distance = config.a_au * DISTANCE_SCALE;
 
-      // Orbit Ellipse Path
+      // Realistic Orbit Trajectory Line
       const orbitCurve = new THREE.EllipseCurve(
         0, 0,
         distance, distance * Math.sqrt(1 - config.eccentricity * config.eccentricity),
@@ -514,127 +690,165 @@ class HeliosCosmicApplication {
       this.scene.add(orbitLine);
       this.orbitLines.push(orbitLine);
 
-      // Planet Mesh with Authentic High-Res Texture
-      const planetGeo = new THREE.SphereGeometry(config.radius * PLANET_SIZE_SCALE, 64, 64);
-      const planetMat = new THREE.MeshStandardMaterial({
-        roughness: 0.8,
-        metalness: 0.1
-      });
+      let planetMesh;
+      if (key === 'earth') {
+        planetMesh = this.createEarthPhotorealisticMesh(config, distance);
+      } else {
+        const planetGeo = new THREE.SphereGeometry(config.radius * PLANET_SIZE_SCALE, 64, 64);
+        const tex = this.textureLoader.load(config.textureFile);
+        tex.colorSpace = THREE.SRGBColorSpace;
 
-      this.textureLoader.load(
-        config.textureFile,
-        (tex) => {
-          tex.colorSpace = THREE.SRGBColorSpace;
-          planetMat.map = tex;
-          planetMat.needsUpdate = true;
-        },
-        undefined,
-        () => {
-          planetMat.map = ProceduralTextureEngine.generatePlanetTexture(key);
-          planetMat.needsUpdate = true;
+        const planetMat = new THREE.MeshStandardMaterial({
+          map: tex,
+          roughness: key === 'mercury' || key === 'mars' ? 0.92 : 0.78,
+          metalness: 0.05
+        });
+
+        // Add topographic bump relief for terrestrial bodies
+        if (config.bumpFile) {
+          const bumpTex = this.textureLoader.load(config.bumpFile);
+          planetMat.bumpMap = bumpTex;
+          planetMat.bumpScale = config.bumpScale || 0.05;
         }
-      );
 
-      const planetMesh = new THREE.Mesh(planetGeo, planetMat);
-      if (config.axialTiltDeg) {
-        planetMesh.rotation.z = THREE.MathUtils.degToRad(config.axialTiltDeg);
+        planetMesh = new THREE.Mesh(planetGeo, planetMat);
+        if (config.axialTiltDeg) {
+          planetMesh.rotation.z = THREE.MathUtils.degToRad(config.axialTiltDeg);
+        }
+        planetMesh.userData = { id: key, name: config.name, config, distance, radius: config.radius };
+
+        // Mars: Thin Rayleigh dust atmosphere rim shell (suspended airborne iron oxide)
+        if (key === 'mars') {
+          const marsAtmoGeo = new THREE.SphereGeometry(config.radius * 1.025, 48, 48);
+          const marsAtmoMat = new THREE.ShaderMaterial({
+            vertexShader: `
+              varying vec3 vNormal;
+              void main() {
+                vNormal = normalize(normalMatrix * normal);
+                gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+              }
+            `,
+            fragmentShader: `
+              varying vec3 vNormal;
+              void main() {
+                float intensity = pow(0.75 - dot(vNormal, vec3(0.0, 0.0, 1.0)), 2.8);
+                vec3 dustColor = vec3(0.92, 0.52, 0.36);
+                gl_FragColor = vec4(dustColor, intensity * 0.72);
+              }
+            `,
+            side: THREE.BackSide,
+            blending: THREE.AdditiveBlending,
+            transparent: true
+          });
+          planetMesh.add(new THREE.Mesh(marsAtmoGeo, marsAtmoMat));
+        }
+
+        // Venus: Opaque sulphuric acid atmosphere halo
+        if (key === 'venus') {
+          const venusAtmoGeo = new THREE.SphereGeometry(config.radius * 1.028, 48, 48);
+          const venusAtmoMat = new THREE.ShaderMaterial({
+            vertexShader: `
+              varying vec3 vNormal;
+              void main() {
+                vNormal = normalize(normalMatrix * normal);
+                gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+              }
+            `,
+            fragmentShader: `
+              varying vec3 vNormal;
+              void main() {
+                float intensity = pow(0.78 - dot(vNormal, vec3(0.0, 0.0, 1.0)), 2.6);
+                vec3 hazeColor = vec3(0.96, 0.88, 0.65);
+                gl_FragColor = vec4(hazeColor, intensity * 0.75);
+              }
+            `,
+            side: THREE.BackSide,
+            blending: THREE.AdditiveBlending,
+            transparent: true
+          });
+          planetMesh.add(new THREE.Mesh(venusAtmoGeo, venusAtmoMat));
+        }
+
+        // Saturn: Cassini-Grade 2048x125 Translucent Rings with Planet Shadow
+        if (key === 'saturn') {
+          const innerRadius = config.radius * 1.45;
+          const outerRadius = config.radius * 2.85;
+          const ringGeo = new THREE.RingGeometry(innerRadius, outerRadius, 128);
+          const pos = ringGeo.attributes.position;
+          const v3 = new THREE.Vector3();
+          for (let i = 0; i < pos.count; i++) {
+            v3.fromBufferAttribute(pos, i);
+            // Radial UV mapping: u corresponds to distance from innerRadius to outerRadius
+            ringGeo.attributes.uv.setXY(i, (v3.length() - innerRadius) / (outerRadius - innerRadius), 0.5);
+          }
+
+          const ringTex = this.textureLoader.load(config.ringsFile);
+          ringTex.colorSpace = THREE.SRGBColorSpace;
+
+          // Custom ring shader: bidirectional scattering + Saturn's spherical shadow on the ring
+          const ringMat = new THREE.ShaderMaterial({
+            uniforms: {
+              ringTexture: { value: ringTex },
+              innerRadius: { value: innerRadius },
+              outerRadius: { value: outerRadius },
+              saturnRadius: { value: config.radius }
+            },
+            vertexShader: `
+              varying vec2 vUv;
+              varying vec3 vLocalPos;
+              void main() {
+                vUv = uv;
+                vLocalPos = position;
+                gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+              }
+            `,
+            fragmentShader: `
+              uniform sampler2D ringTexture;
+              uniform float saturnRadius;
+              varying vec2 vUv;
+              varying vec3 vLocalPos;
+
+              void main() {
+                // vUv.x maps radially across the A, B, C, Cassini rings
+                vec4 texColor = texture2D(ringTexture, vec2(vUv.x, 0.5));
+                if (texColor.a < 0.05) discard;
+
+                // Shadow cast by Saturn's globe onto the rings (anti-sun shadow cone)
+                vec3 ringPoint = vLocalPos;
+                float distToShadowAxis = length(vec2(ringPoint.y, ringPoint.z));
+                float inShadow = (ringPoint.x > 0.0 && distToShadowAxis < saturnRadius * 1.05) ? 0.12 : 1.0;
+
+                vec3 ringColor = texColor.rgb * inShadow * 1.15;
+                gl_FragColor = vec4(ringColor, texColor.a * 0.95);
+              }
+            `,
+            side: THREE.DoubleSide,
+            transparent: true,
+            depthWrite: false
+          });
+
+          const saturnRings = new THREE.Mesh(ringGeo, ringMat);
+          saturnRings.rotation.x = Math.PI / 2;
+          planetMesh.add(saturnRings);
+
+          // Titan
+          this.createGenericMoon({ name: 'Titan', parent: planetMesh, radius: 0.55, distance: 8.5, speed: 0.02, color: 0xd4a359 });
+        }
+
+        // Jupiter Galilean Moons
+        if (key === 'jupiter') {
+          [
+            { name: 'Io', radius: 0.38, distance: 6.2, speed: 0.05, color: 0xdfc136 },
+            { name: 'Europa', radius: 0.35, distance: 7.8, speed: 0.038, color: 0xccc3ae },
+            { name: 'Ganymede', radius: 0.52, distance: 9.8, speed: 0.026, color: 0x938575 },
+            { name: 'Callisto', radius: 0.48, distance: 12.2, speed: 0.018, color: 0x6e6357 }
+          ].forEach(m => this.createGenericMoon({ ...m, parent: planetMesh }));
+        }
       }
-      planetMesh.userData = { id: key, name: config.name, config, distance, radius: config.radius };
 
       this.scene.add(planetMesh);
       this.planets.set(key, planetMesh);
       this.interactiveObjects.push(planetMesh);
-
-      // Earth Clouds & Luna (Moon)
-      if (key === 'earth') {
-        const cloudGeo = new THREE.SphereGeometry(config.radius * 1.025, 64, 64);
-        const cloudMat = new THREE.MeshStandardMaterial({
-          transparent: true,
-          opacity: 0.65,
-          blending: THREE.NormalBlending
-        });
-
-        this.textureLoader.load(config.cloudsFile, (tex) => {
-          tex.colorSpace = THREE.SRGBColorSpace;
-          cloudMat.map = tex;
-          cloudMat.needsUpdate = true;
-        });
-
-        this.earthClouds = new THREE.Mesh(cloudGeo, cloudMat);
-        planetMesh.add(this.earthClouds);
-
-        // Natural Moon (Luna) with authentic Moon map
-        const moonGeo = new THREE.SphereGeometry(0.42, 32, 32);
-        const moonMat = new THREE.MeshStandardMaterial({ roughness: 0.9 });
-        this.textureLoader.load('textures/moon.jpg', (tex) => {
-          tex.colorSpace = THREE.SRGBColorSpace;
-          moonMat.map = tex;
-          moonMat.needsUpdate = true;
-        });
-        const moonMesh = new THREE.Mesh(moonGeo, moonMat);
-        moonMesh.userData = {
-          id: 'moon',
-          name: 'The Moon (Luna)',
-          category: 'NATURAL SATELLITE',
-          parentName: 'earth',
-          distance: 3.8 * MOON_DISTANCE_SCALE,
-          speed: 0.035,
-          angle: 0
-        };
-        this.scene.add(moonMesh);
-        this.moons.push({ mesh: moonMesh, parent: planetMesh });
-        this.interactiveObjects.push(moonMesh);
-      }
-
-      // Saturn Ring System & Titan
-      if (key === 'saturn') {
-        const innerRadius = config.radius * 1.45;
-        const outerRadius = config.radius * 2.85;
-        const ringGeo = new THREE.RingGeometry(innerRadius, outerRadius, 128);
-        const pos = ringGeo.attributes.position;
-        const v3 = new THREE.Vector3();
-        for (let i = 0; i < pos.count; i++) {
-          v3.fromBufferAttribute(pos, i);
-          ringGeo.attributes.uv.setXY(i, (v3.length() - innerRadius) / (outerRadius - innerRadius), 0);
-        }
-
-        const ringMat = new THREE.MeshBasicMaterial({
-          side: THREE.DoubleSide,
-          transparent: true,
-          opacity: 0.88
-        });
-
-        this.textureLoader.load(
-          config.ringsFile,
-          (tex) => {
-            tex.colorSpace = THREE.SRGBColorSpace;
-            ringMat.map = tex;
-            ringMat.needsUpdate = true;
-          },
-          undefined,
-          () => {
-            ringMat.map = ProceduralTextureEngine.generateSaturnRingTexture();
-            ringMat.needsUpdate = true;
-          }
-        );
-
-        const saturnRings = new THREE.Mesh(ringGeo, ringMat);
-        saturnRings.rotation.x = Math.PI / 2;
-        planetMesh.add(saturnRings);
-
-        // Saturn Moon: Titan
-        this.createGenericMoon({ name: 'Titan', parent: planetMesh, radius: 0.55, distance: 8.5, speed: 0.02, color: 0xd4a359 });
-      }
-
-      // Jupiter Galilean Moons
-      if (key === 'jupiter') {
-        [
-          { name: 'Io', radius: 0.38, distance: 6.2, speed: 0.05, color: 0xdfc136 },
-          { name: 'Europa', radius: 0.35, distance: 7.8, speed: 0.038, color: 0xccc3ae },
-          { name: 'Ganymede', radius: 0.52, distance: 9.8, speed: 0.026, color: 0x938575 },
-          { name: 'Callisto', radius: 0.48, distance: 12.2, speed: 0.018, color: 0x6e6357 }
-        ].forEach(m => this.createGenericMoon({ ...m, parent: planetMesh }));
-      }
     });
   }
 
@@ -657,29 +871,39 @@ class HeliosCosmicApplication {
   }
 
   // ----------------------------------------------------------------------------
-  // Artificial Satellites: ISS, JWST (L2), Hubble, Starlink, GPS, GEO Ring
+  // Artificial Satellites: ISS, JWST (Sun-Earth L2), Hubble, Starlink, GPS
   // ----------------------------------------------------------------------------
   initArtificialSatellites() {
     this.earthMesh = this.planets.get('earth');
     if (!this.earthMesh) return;
 
-    // 1. ISS (International Space Station)
+    // 1. High-Detail ISS with Sun-Tracking Solar Panels & Beacon
     this.issGroup = new THREE.Group();
-    const issBodyMat = new THREE.MeshStandardMaterial({ color: 0xdddddd, metalness: 0.8, roughness: 0.2 });
-    const issSolarMat = new THREE.MeshStandardMaterial({ color: 0x114488, metalness: 0.9, roughness: 0.1 });
+    const issBodyMat = new THREE.MeshStandardMaterial({ color: 0xe2e8f0, metalness: 0.85, roughness: 0.15 });
+    const issSolarMat = new THREE.MeshStandardMaterial({ color: 0x0f2b5c, metalness: 0.95, roughness: 0.08 });
+    const issTrussMat = new THREE.MeshStandardMaterial({ color: 0x94a3b8, metalness: 0.7, roughness: 0.3 });
 
-    const bodyCylinder = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 0.28, 16), issBodyMat);
+    // Pressurized modules cylinder (Destiny / Unity / Zvezda)
+    const bodyCylinder = new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.045, 0.32, 16), issBodyMat);
     bodyCylinder.rotation.z = Math.PI / 2;
     this.issGroup.add(bodyCylinder);
 
-    const solarWingGeo = new THREE.BoxGeometry(0.38, 0.005, 0.12);
-    const leftWing = new THREE.Mesh(solarWingGeo, issSolarMat);
-    leftWing.position.x = -0.26;
-    const rightWing = new THREE.Mesh(solarWingGeo, issSolarMat);
-    rightWing.position.x = 0.26;
-    this.issGroup.add(leftWing, rightWing);
+    // Integrated Truss Structure
+    const truss = new THREE.Mesh(new THREE.BoxGeometry(0.72, 0.02, 0.02), issTrussMat);
+    this.issGroup.add(truss);
 
-    const beaconLight = new THREE.PointLight(0x00f0ff, 1.5, 2);
+    // Solar Array Wings (Sun-tracking gimbal parent)
+    this.issSolarGimbal = new THREE.Group();
+    const solarWingGeo = new THREE.BoxGeometry(0.42, 0.005, 0.14);
+    const leftWing = new THREE.Mesh(solarWingGeo, issSolarMat);
+    leftWing.position.x = -0.32;
+    const rightWing = new THREE.Mesh(solarWingGeo, issSolarMat);
+    rightWing.position.x = 0.32;
+    this.issSolarGimbal.add(leftWing, rightWing);
+    this.issGroup.add(this.issSolarGimbal);
+
+    // Pulsing Strobe Navigation Light
+    const beaconLight = new THREE.PointLight(0x00f0ff, 1.8, 2.5);
     this.issGroup.add(beaconLight);
 
     this.issGroup.userData = {
@@ -699,15 +923,35 @@ class HeliosCosmicApplication {
     this.interactiveObjects.push(bodyCylinder);
     bodyCylinder.userData = this.issGroup.userData;
 
+    // ISS Orbit Path Visualizer (Yellow-Gold Ground Track Ellipse)
+    const issOrbitGeo = new THREE.BufferGeometry();
+    const issPoints = [];
+    for (let i = 0; i <= 64; i++) {
+      const a = (i / 64) * Math.PI * 2;
+      const r = 2.1;
+      issPoints.push(new THREE.Vector3(
+        r * Math.cos(a),
+        r * Math.sin(a) * Math.sin(THREE.MathUtils.degToRad(51.64)),
+        r * Math.sin(a) * Math.cos(THREE.MathUtils.degToRad(51.64))
+      ));
+    }
+    issOrbitGeo.setFromPoints(issPoints);
+    this.issOrbitTrail = new THREE.Line(issOrbitGeo, new THREE.LineBasicMaterial({
+      color: 0xffb703,
+      transparent: true,
+      opacity: 0.35
+    }));
+    this.scene.add(this.issOrbitTrail);
+
     // 2. JWST (James Webb Space Telescope at Sun-Earth L2 Lagrangian Point)
     this.jwstGroup = new THREE.Group();
-    const jwstSunshieldMat = new THREE.MeshStandardMaterial({ color: 0x999999, metalness: 0.9, roughness: 0.1 });
-    const jwstMirrorMat = new THREE.MeshStandardMaterial({ color: 0xffb703, metalness: 0.95, roughness: 0.05 });
+    const jwstSunshieldMat = new THREE.MeshStandardMaterial({ color: 0xd8b4e2, metalness: 0.92, roughness: 0.1 });
+    const jwstMirrorMat = new THREE.MeshStandardMaterial({ color: 0xffb703, metalness: 0.98, roughness: 0.02 });
 
-    // Hexagonal primary mirror representation
-    const mirrorMesh = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.12, 0.02, 6), jwstMirrorMat);
+    // 18-Hexagonal Gold Mirror Array & Sunshield
+    const mirrorMesh = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.12, 0.015, 6), jwstMirrorMat);
     mirrorMesh.rotation.x = Math.PI / 2;
-    const sunshieldMesh = new THREE.Mesh(new THREE.BoxGeometry(0.35, 0.01, 0.22), jwstSunshieldMat);
+    const sunshieldMesh = new THREE.Mesh(new THREE.BoxGeometry(0.38, 0.008, 0.24), jwstSunshieldMat);
     this.jwstGroup.add(sunshieldMesh, mirrorMesh);
 
     this.jwstGroup.userData = {
@@ -716,7 +960,7 @@ class HeliosCosmicApplication {
       category: 'DEEP SPACE OBSERVATORY (L2)',
       altitude_km: 1500000,
       speed_kms: 0.20,
-      orbitRadius: 6.8, // Sun-Earth L2 representation behind Earth
+      orbitRadius: 7.2, // Sun-Earth L2 (trailing 1.5M km behind Earth on night side)
       inclination: 0.08,
       speed: 0.008,
       angle: 0.0,
@@ -729,12 +973,12 @@ class HeliosCosmicApplication {
 
     // 3. Hubble Space Telescope (HST)
     this.hstGroup = new THREE.Group();
-    const hstBody = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 0.22, 16), issBodyMat);
+    const hstBody = new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.045, 0.24, 16), issBodyMat);
     this.hstGroup.add(hstBody);
     this.hstGroup.userData = {
       id: 'hubble',
       name: 'Hubble Space Telescope (HST)',
-      category: 'ARTIFICIAL SATELLITE (LEO)',
+      category: 'SPACE OBSERVATORY (LEO)',
       altitude_km: 540,
       speed_kms: 7.59,
       orbitRadius: 2.25,
@@ -748,7 +992,7 @@ class HeliosCosmicApplication {
     this.interactiveObjects.push(hstBody);
     hstBody.userData = this.hstGroup.userData;
 
-    // 4. Starlink Megaconstellation Swarm (250 Circular Pinprick Satellites)
+    // 4. Starlink Megaconstellation Swarm (250 Satellites in LEO)
     const starlinkCount = 250;
     const starlinkGeo = new THREE.BufferGeometry();
     const starlinkPositions = new Float32Array(starlinkCount * 3);
@@ -807,7 +1051,6 @@ class HeliosCosmicApplication {
     const reticle = document.getElementById('target-reticle');
     const reticleLabel = document.getElementById('reticle-label');
 
-    // Pointer Move / Hover
     window.addEventListener('pointermove', (e) => {
       mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
       mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
@@ -830,7 +1073,6 @@ class HeliosCosmicApplication {
       }
     });
 
-    // Pointer Click on 3D Objects
     window.addEventListener('pointerdown', (e) => {
       if (e.target.closest('.hud-header, .telemetry-card, .hud-footer, .scale-banner, .copyright-tag')) return;
 
@@ -843,7 +1085,7 @@ class HeliosCosmicApplication {
       }
     });
 
-    // Quick Jump Buttons
+    // Navigation Pills
     document.querySelectorAll('.nav-pill').forEach(btn => {
       btn.addEventListener('click', () => {
         document.querySelectorAll('.nav-pill').forEach(b => b.classList.remove('active'));
@@ -857,7 +1099,7 @@ class HeliosCosmicApplication {
       });
     });
 
-    // Cosmic Scale Banner Action Button
+    // Scale Action Button (Dive into Solar System / Zoom to Galaxy)
     document.getElementById('btn-scale-action')?.addEventListener('click', () => {
       if (this.currentScaleLevel === 'GALAXY' || this.currentScaleLevel === 'INTERSTELLAR') {
         this.diveIntoSolarSystem();
@@ -866,14 +1108,12 @@ class HeliosCosmicApplication {
       }
     });
 
-    // Card Actions
     document.getElementById('btn-focus-target')?.addEventListener('click', () => this.zoomCloserToTarget());
     document.getElementById('btn-reset-view')?.addEventListener('click', () => this.diveIntoSolarSystem());
     document.getElementById('close-card-btn')?.addEventListener('click', () => {
       document.getElementById('telemetry-card').classList.add('collapsed');
     });
 
-    // Time Warp Buttons
     document.querySelectorAll('.time-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         document.querySelectorAll('.time-btn').forEach(b => b.classList.remove('active'));
@@ -888,7 +1128,7 @@ class HeliosCosmicApplication {
       });
     });
 
-    // Visual Layer Toggles
+    // Radar Toggles
     document.getElementById('toggle-galaxy')?.addEventListener('change', (e) => {
       if (this.galaxyGroup) this.galaxyGroup.visible = e.target.checked;
     });
@@ -900,6 +1140,7 @@ class HeliosCosmicApplication {
       if (this.starlinkMesh) this.starlinkMesh.visible = e.target.checked;
       if (this.geoRing) this.geoRing.visible = e.target.checked;
       if (this.gpsRing) this.gpsRing.visible = e.target.checked;
+      if (this.issOrbitTrail) this.issOrbitTrail.visible = e.target.checked;
     });
     document.getElementById('toggle-moons')?.addEventListener('change', (e) => {
       this.moons.forEach(m => (m.mesh.visible = e.target.checked));
@@ -1069,7 +1310,7 @@ class HeliosCosmicApplication {
       if (coordsEl) coordsEl.textContent = `Heliocentric X: ${ephem.position?.x_au ?? 0} AU | Z: ${ephem.position?.z_au ?? 0} AU`;
       if (altEl) altEl.textContent = 'Heliocentric Orbit';
       if (periodEl) periodEl.textContent = `${ephem.orbital_period_days} Days`;
-    } else if (satEphem || id === 'iss' || id === 'jwst') {
+    } else if (satEphem || id === 'iss' || id === 'jwst' || id === 'hubble') {
       const sat = satEphem || data;
       if (radEl) radEl.textContent = id === 'iss' ? '109 m (Wingspan)' : (id === 'jwst' ? '21 m (Sunshield)' : 'Orbital Spacecraft');
       if (tempEl) tempEl.textContent = '-150 °C to +120 °C';
@@ -1086,7 +1327,7 @@ class HeliosCosmicApplication {
         if (altEl) altEl.textContent = `${v.altitude_km.toLocaleString()} km Altitude`;
         if (periodEl) periodEl.textContent = `${sat.period_mins} mins`;
       } else {
-        if (coordsEl) coordsEl.textContent = `Orbit Inclination: ${sat.inclination_deg ?? 51.6}°`;
+        if (coordsEl) coordsEl.textContent = `Orbit Inclination: ${sat.inclination_deg ?? 51.64}°`;
         if (altEl) altEl.textContent = `${sat.altitude_km?.toLocaleString() ?? 420} km Altitude`;
         if (periodEl) periodEl.textContent = `${sat.period_mins ?? 92.8} mins`;
       }
@@ -1094,7 +1335,7 @@ class HeliosCosmicApplication {
   }
 
   // ----------------------------------------------------------------------------
-  // Dynamic Cosmic Scale Detection
+  // Dynamic Cosmic Scale Detection & Level-of-Detail (LOD)
   // ----------------------------------------------------------------------------
   updateScaleDetection() {
     const camDist = this.camera.position.length();
@@ -1102,11 +1343,10 @@ class HeliosCosmicApplication {
     const desc = document.getElementById('scale-desc');
     const actionBtn = document.getElementById('btn-scale-action');
 
-    // Distance-based Galaxy Level-of-Detail (LOD):
-    // Fade out dense galactic arm particles when exploring inner planetary orbits
+    // Distance LOD: Only show galaxy particles when far enough out
     if (this.galaxyGroup) {
       const toggleGalaxyChecked = document.getElementById('toggle-galaxy')?.checked ?? true;
-      this.galaxyGroup.visible = toggleGalaxyChecked && (camDist > 90);
+      this.galaxyGroup.visible = toggleGalaxyChecked && (camDist > 85);
     }
 
     if (camDist > 900) {
@@ -1117,6 +1357,13 @@ class HeliosCosmicApplication {
         if (actionBtn) actionBtn.textContent = 'DIVE INTO SOLAR SYSTEM ↓';
       }
     } else if (camDist > 250) {
+      if (this.currentScaleLevel !== 'INTERSTELLAR') {
+        this.currentScaleLevel = 'INTERSTELLAR';
+        if (badge) badge.textContent = 'INTERSTELLAR SCALE';
+        if (desc) desc.textContent = 'APPROACHING SOLAR SYSTEM • OORT CLOUD';
+        if (actionBtn) actionBtn.textContent = 'FOCUS SUN ↓';
+      }
+    } else if (camDist > 40) {
       if (this.currentScaleLevel !== 'SOLAR') {
         this.currentScaleLevel = 'SOLAR';
         if (badge) badge.textContent = 'SOLAR SYSTEM SCALE';
@@ -1151,9 +1398,12 @@ class HeliosCosmicApplication {
       }
     }
 
-    // 2. Sun Corona Pulsing & Rotation
+    // 2. Sun Convection & Corona
     if (this.sunMesh) {
       this.sunMesh.rotation.y += 0.001;
+      if (this.sunMesh.material.uniforms) {
+        this.sunMesh.material.uniforms.time.value += delta;
+      }
       if (this.sunCorona) this.sunCorona.material.uniforms.time.value += delta;
     }
 
@@ -1173,7 +1423,7 @@ class HeliosCosmicApplication {
     });
 
     // Earth Cloud Shell Rotation
-    if (this.earthClouds) this.earthClouds.rotation.y += 0.0025;
+    if (this.earthClouds) this.earthClouds.rotation.y += 0.0022;
 
     // 4. Moons Orbiting Parents
     this.moons.forEach(({ mesh, parent }) => {
@@ -1190,7 +1440,7 @@ class HeliosCosmicApplication {
     if (this.earthMesh) {
       const earthPos = this.earthMesh.position;
 
-      // ISS orbit
+      // ISS orbit progression & real-time Sun-tracking solar arrays
       if (this.issGroup) {
         const issData = this.issGroup.userData;
         issData.angle += issData.speed * (this.isPaused ? 0 : 1.0);
@@ -1200,22 +1450,33 @@ class HeliosCosmicApplication {
           earthPos.y + r * Math.sin(issData.angle) * Math.sin(issData.inclination),
           earthPos.z + r * Math.sin(issData.angle) * Math.cos(issData.inclination)
         );
-        this.issGroup.rotation.y += 0.02;
+
+        // Realistic Sun Tracking: Solar arrays gimbal to face Sun (0,0,0)
+        if (this.issSolarGimbal) {
+          const sunWorldPos = new THREE.Vector3(0, 0, 0);
+          this.issSolarGimbal.lookAt(sunWorldPos);
+        }
+
+        // Lock ISS orbit trail to Earth
+        if (this.issOrbitTrail) this.issOrbitTrail.position.copy(earthPos);
       }
 
-      // JWST at Sun-Earth L2 (trailing Earth opposite Sun)
+      // JWST at Sun-Earth L2 (trailing 1.5 million km behind Earth, opposite the Sun)
       if (this.jwstGroup) {
         const jwstData = this.jwstGroup.userData;
         jwstData.angle += jwstData.speed * (this.isPaused ? 0 : 1.0);
         const r = jwstData.orbitRadius;
-        // Oriented outward from Sun
+        
+        // Outward vector from Sun through Earth
         const sunToEarth = earthPos.clone().normalize();
         const l2Base = earthPos.clone().add(sunToEarth.multiplyScalar(r));
         this.jwstGroup.position.set(
-          l2Base.x + Math.cos(jwstData.angle) * 0.4,
-          l2Base.y + Math.sin(jwstData.angle) * 0.3,
-          l2Base.z + Math.sin(jwstData.angle) * 0.4
+          l2Base.x + Math.cos(jwstData.angle) * 0.35,
+          l2Base.y + Math.sin(jwstData.angle) * 0.25,
+          l2Base.z + Math.sin(jwstData.angle) * 0.35
         );
+        // Sunshield faces Sun, mirror array points out into deep space!
+        this.jwstGroup.lookAt(new THREE.Vector3(0, 0, 0));
       }
 
       // Hubble orbit
@@ -1236,10 +1497,7 @@ class HeliosCosmicApplication {
         this.starlinkMesh.rotation.y += 0.008;
       }
 
-      // GPS Constellation ring
       if (this.gpsRing) this.gpsRing.position.copy(earthPos);
-
-      // Geostationary belt
       if (this.geoRing) this.geoRing.position.copy(earthPos);
     }
 
@@ -1301,7 +1559,7 @@ class HeliosCosmicApplication {
   }
 }
 
-// Initialize Application
+// Initialize Application on DOM Ready
 window.addEventListener('DOMContentLoaded', () => {
   new HeliosCosmicApplication();
 });

@@ -45,7 +45,9 @@ PLANET_METADATA: Dict[str, Dict[str, Any]] = {
         "composition": "73% Hydrogen, 25% Helium, 2% Heavier Elements",
         "rotation_period_days": 27.0,
         "distance_from_sun_au": 0.0,
-        "orbital_speed_kms": 0.0,
+        "orbital_speed_kms": 230.0,
+        "orbital_period_days": "230 Million Years (Galactic Orbit)",
+        "moons_count": "8 Planets, 5 Dwarf Planets, Millions of Asteroids",
         "color_hex": "#ffaa00",
         "facts": "Contains 99.86% of all mass in the Solar System. Consumes 600 million tons of hydrogen per second."
     },
