@@ -3,16 +3,16 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Helios 3D — Interactive Solar System & Satellite Orbital Simulator</title>
-  <meta name="description" content="Production-ready 3D interactive Solar System and Artificial Satellite simulator powered by Three.js and Python FastAPI.">
+  <title>Helios 3D — Milky Way to Solar System & Satellite Orbital Simulator</title>
+  <meta name="description" content="Cinematic 3D interactive simulator featuring Milky Way galaxy zoom, high-resolution planets, and real-time artificial satellites.">
   
   <!-- Modern Aerospace Typography -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800;900&family=Space+Grotesk:wght@300;400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   
   <!-- Stylesheet -->
-  <link rel="stylesheet" href="style.css?v=1.0.1">
+  <link rel="stylesheet" href="style.css?v=2.0.0">
 
   <!-- Import maps for clean Three.js ES module loading -->
   <script type="importmap">
@@ -33,15 +33,15 @@
         <div class="loader-core"></div>
       </div>
       <h1 class="loader-title">HELIOS <span>3D</span></h1>
-      <p class="loader-subtitle">INITIALIZING CELESTIAL EPHEMERIS & ORBITAL TELEMETRY</p>
+      <p class="loader-subtitle">CALCULATING MILKY WAY SPIRAL ARMS & REALTIME SATELLITE ORBITS</p>
       <div class="progress-bar-container">
         <div class="progress-bar" id="load-progress-bar"></div>
       </div>
-      <span class="load-status-text" id="load-status">Generating 4K planetary surfaces & starfields...</span>
+      <span class="load-status-text" id="load-status">Loading authentic high-resolution textures & ephemeris...</span>
     </div>
   </div>
 
-  <!-- 3D Canvas Container -->
+  <!-- 3D WebGL Canvas Layer -->
   <div id="canvas-container"></div>
 
   <!-- Top Mission Control Navigation Bar -->
@@ -49,31 +49,50 @@
     <div class="brand">
       <div class="brand-icon">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <circle cx="12" cy="12" r="5"></circle>
-          <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"></path>
+          <circle cx="12" cy="12" r="3"></circle>
+          <path d="M12 2a10 10 0 1 0 10 10"></path>
+          <path d="M12 2a10 10 0 0 1 10 10" stroke-dasharray="2 4"></path>
+          <path d="M4.93 4.93l4.24 4.24M14.83 14.83l4.24 4.24"></path>
         </svg>
       </div>
       <div>
-        <div class="brand-name">HELIOS <span class="accent">SPACE-VIEW</span></div>
-        <div class="brand-tag">EPHEMERIS & SATELLITE RADAR</div>
+        <div class="brand-name">HELIOS <span class="accent">COSMIC-VIEW</span></div>
+        <div class="brand-tag">GALAXY &bull; SOLAR SYSTEM &bull; SATELLITES</div>
       </div>
     </div>
 
-    <!-- Quick Celestial Target Jump Pills -->
+    <!-- Quick Celestial Target Navigation Bar -->
     <nav class="quick-nav" id="quick-nav" aria-label="Celestial Target Jump Bar">
-      <button class="nav-pill active" id="nav-sun" data-target="sun">Sun</button>
+      <button class="nav-pill galaxy-pill" id="nav-galaxy" data-target="galaxy" title="Zoom out to Milky Way Galaxy View">
+        <span class="nav-pill-dot dot-galaxy"></span>Milky Way
+      </button>
+      <div class="nav-divider"></div>
+      <button class="nav-pill sun-pill" id="nav-sun" data-target="sun">
+        <span class="nav-pill-dot dot-sun"></span>Sun
+      </button>
       <button class="nav-pill" id="nav-mercury" data-target="mercury">Mercury</button>
       <button class="nav-pill" id="nav-venus" data-target="venus">Venus</button>
-      <button class="nav-pill" id="nav-earth" data-target="earth">Earth</button>
-      <button class="nav-pill" id="nav-mars" data-target="mars">Mars</button>
-      <button class="nav-pill" id="nav-jupiter" data-target="jupiter">Jupiter</button>
-      <button class="nav-pill" id="nav-saturn" data-target="saturn">Saturn</button>
+      <button class="nav-pill earth-pill active" id="nav-earth" data-target="earth">
+        <span class="nav-pill-dot dot-earth"></span>Earth
+      </button>
+      <button class="nav-pill mars-pill" id="nav-mars" data-target="mars">Mars</button>
+      <button class="nav-pill jupiter-pill" id="nav-jupiter" data-target="jupiter">Jupiter</button>
+      <button class="nav-pill saturn-pill" id="nav-saturn" data-target="saturn">Saturn</button>
       <button class="nav-pill" id="nav-uranus" data-target="uranus">Uranus</button>
       <button class="nav-pill" id="nav-neptune" data-target="neptune">Neptune</button>
-      <button class="nav-pill sat-pill" id="nav-iss" data-target="iss">ISS</button>
+      <div class="nav-divider"></div>
+      <button class="nav-pill sat-pill" id="nav-iss" data-target="iss">
+        <span class="nav-pill-dot dot-sat"></span>ISS
+      </button>
+      <button class="nav-pill sat-pill" id="nav-jwst" data-target="jwst">
+        <span class="nav-pill-dot dot-sat"></span>JWST
+      </button>
+      <button class="nav-pill sat-pill" id="nav-starlink" data-target="starlink">
+        <span class="nav-pill-dot dot-sat"></span>Starlink
+      </button>
     </nav>
 
-    <!-- Mission Clock & Backend Status Indicator -->
+    <!-- Mission Clock & Backend Status -->
     <div class="mission-status">
       <div class="status-indicator">
         <span class="status-dot" id="backend-status-dot"></span>
@@ -83,57 +102,80 @@
     </div>
   </header>
 
-  <!-- Left / Side Interactive Celestial Telemetry Card (HUD Overlay) -->
-  <aside class="telemetry-card" id="telemetry-card">
+  <!-- Cosmic Scale Level Banner (Top Center Floating) -->
+  <div class="scale-banner" id="scale-banner">
+    <div class="scale-badge" id="scale-badge">GALAXY SCALE</div>
+    <div class="scale-desc" id="scale-desc">MILKY WAY &bull; ORION ARM &bull; SCROLL TO ZOOM IN</div>
+    <button class="scale-action-btn" id="btn-scale-action">DIVE INTO SOLAR SYSTEM &darr;</button>
+  </div>
+
+  <!-- Left / Side Interactive Telemetry Card (HUD Overlay) -->
+  <aside class="telemetry-card collapsed" id="telemetry-card">
     <div class="card-header">
-      <div class="target-badge" id="target-category">STAR / G2V</div>
+      <div class="target-badge" id="target-category">TERRESTRIAL PLANET</div>
       <button class="close-card-btn" id="close-card-btn" title="Minimize Card">✕</button>
     </div>
 
     <div class="target-title-group">
-      <h2 class="target-name" id="target-name">The Sun</h2>
-      <span class="target-subtitle" id="target-subtitle">Center of the Solar System</span>
+      <h2 class="target-name" id="target-name">Earth</h2>
+      <span class="target-subtitle" id="target-subtitle">Oasis of Life &bull; Cradle of Civilization</span>
     </div>
 
     <div class="telemetry-grid">
       <div class="telemetry-item">
-        <span class="telemetry-label">RADIUS</span>
-        <span class="telemetry-val" id="tel-radius">696,340 km</span>
+        <span class="telemetry-label">RADIUS / SIZE</span>
+        <span class="telemetry-val" id="tel-radius">6,371 km</span>
       </div>
       <div class="telemetry-item">
         <span class="telemetry-label">SURFACE TEMP</span>
-        <span class="telemetry-val" id="tel-temp">5,500 °C</span>
+        <span class="telemetry-val" id="tel-temp">-88 °C to 58 °C</span>
       </div>
       <div class="telemetry-item">
         <span class="telemetry-label">DIST. FROM SUN</span>
-        <span class="telemetry-val" id="tel-distance">0.00 AU</span>
+        <span class="telemetry-val" id="tel-distance">1.00 AU</span>
       </div>
       <div class="telemetry-item">
-        <span class="telemetry-label">ORBIT SPEED</span>
-        <span class="telemetry-val" id="tel-speed">0.00 km/s</span>
+        <span class="telemetry-label">ORBIT VELOCITY</span>
+        <span class="telemetry-val" id="tel-speed">29.78 km/s</span>
+      </div>
+    </div>
+
+    <div class="telemetry-section" id="tel-realtime-section">
+      <div class="section-title">REAL-TIME ORBITAL VECTOR</div>
+      <div class="section-row">
+        <span>Sub-Satellite Ground Track</span>
+        <strong id="tel-coords">Lat: 0.00° | Lon: 0.00°</strong>
+      </div>
+      <div class="section-row">
+        <span>Altitude</span>
+        <strong id="tel-altitude">Surface Datum</strong>
+      </div>
+      <div class="section-row">
+        <span>Orbital Period</span>
+        <strong id="tel-period">365.25 Days</strong>
       </div>
     </div>
 
     <div class="telemetry-section">
-      <div class="section-title">MASS & ROTATION</div>
+      <div class="section-title">PHYSICAL ATTRIBUTES</div>
       <div class="section-row">
         <span>Mass</span>
-        <strong id="tel-mass">1.989 × 10^30 kg</strong>
+        <strong id="tel-mass">5.972 × 10^24 kg</strong>
       </div>
       <div class="section-row">
         <span>Rotation Period</span>
-        <strong id="tel-rotation">27.0 Days</strong>
+        <strong id="tel-rotation">24.0 Hours</strong>
       </div>
       <div class="section-row" id="tel-moons-row">
-        <span>Moons Known</span>
-        <strong id="tel-moons">—</strong>
+        <span>Natural Moons</span>
+        <strong id="tel-moons">1 (The Moon)</strong>
       </div>
     </div>
 
     <div class="telemetry-section">
-      <div class="section-title">COMPOSITION / NOTES</div>
-      <p class="telemetry-description" id="tel-composition">73% Hydrogen, 25% Helium, 2% Heavier Elements</p>
-      <p class="telemetry-facts" id="tel-facts">Contains 99.86% of all mass in the Solar System.</p>
+      <div class="section-title">COMPOSITION & NOTES</div>
+      <p class="telemetry-description" id="tel-composition">78% Nitrogen, 21% Oxygen, 0.9% Argon. Liquid water oceans.</p>
+      <p class="telemetry-facts" id="tel-facts">The only known astronomical body to harbor life.</p>
     </div>
 
     <div class="card-actions">
@@ -148,18 +190,18 @@
         LOCK CAMERA FOCUS
       </button>
       <button class="action-btn secondary" id="btn-reset-view">
-        RESET OVERVIEW
+        SOLAR SYSTEM OVERVIEW
       </button>
     </div>
   </aside>
 
-  <!-- Bottom Floating Flight Controls & View Toggles -->
+  <!-- Bottom Flight Controls & Radar Toggles -->
   <footer class="hud-footer">
-    <!-- Simulation Time Flow Speed Controls -->
+    <!-- Simulation Time Controls -->
     <div class="hud-panel time-panel">
       <span class="panel-label">TIME WARP</span>
       <div class="time-controls">
-        <button class="time-btn" data-speed="0" id="btn-pause" title="Freeze Time">⏸</button>
+        <button class="time-btn" data-speed="0" id="btn-pause" title="Freeze Simulation">⏸</button>
         <button class="time-btn" data-speed="0.2">0.2x</button>
         <button class="time-btn active" data-speed="1.0">1x (Real)</button>
         <button class="time-btn" data-speed="5.0">5x</button>
@@ -168,10 +210,14 @@
       </div>
     </div>
 
-    <!-- Visual Layer Toggles -->
+    <!-- Visual Radar Layer Toggles -->
     <div class="hud-panel layer-panel">
-      <span class="panel-label">RADAR OVERLAYS</span>
+      <span class="panel-label">RADAR LAYERS</span>
       <div class="toggle-group">
+        <label class="switch-item">
+          <input type="checkbox" id="toggle-galaxy" checked>
+          <span class="switch-label">Galaxy Arms</span>
+        </label>
         <label class="switch-item">
           <input type="checkbox" id="toggle-orbits" checked>
           <span class="switch-label">Orbits</span>
@@ -184,17 +230,13 @@
           <input type="checkbox" id="toggle-moons" checked>
           <span class="switch-label">Moons</span>
         </label>
-        <label class="switch-item">
-          <input type="checkbox" id="toggle-labels" checked>
-          <span class="switch-label">Labels</span>
-        </label>
       </div>
     </div>
 
-    <!-- Camera Mode -->
+    <!-- Cinematic Tour Button -->
     <div class="hud-panel view-panel">
       <button class="hud-icon-btn" id="btn-cinematic" title="Cinematic Orbit Tour">
-        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
           <polygon points="5 3 19 12 5 21 5 3"></polygon>
         </svg>
         <span>AUTO TOUR</span>
@@ -202,14 +244,24 @@
     </div>
   </footer>
 
-  <!-- Target Reticle / Hover Marker (3D Cursor tracker) -->
+  <!-- Target Reticle / Hover Marker -->
   <div id="target-reticle" class="target-reticle">
     <div class="reticle-box">
-      <span class="reticle-label" id="reticle-label">EARTH</span>
+      <span class="reticle-label" id="reticle-label">TARGET</span>
+    </div>
+  </div>
+
+  <!-- Copyright Tag (Bottom Right Corner as Requested) -->
+  <div class="copyright-tag">
+    <div class="copyright-dot"></div>
+    <div class="copyright-text">
+      <span>Designed & Developed by</span>
+      <strong class="copyright-name">Asadullahil Galib</strong>
+      <span class="copyright-year">&copy; 2026 &bull; All Rights Reserved</span>
     </div>
   </div>
 
   <!-- Main Three.js Application Logic -->
-  <script type="module" src="main.js?v=1.0.2"></script>
+  <script type="module" src="main.js?v=2.0.1"></script>
 </body>
 </html>

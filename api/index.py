@@ -342,6 +342,70 @@ ARTIFICIAL_SATELLITES: List[Dict[str, Any]] = [
         "tle_line1": "1 44713U 19074A   24080.34215682  .00004512  00000+0  31245-4 0  9992",
         "tle_line2": "2 44713  53.0512 312.4512 0001423  89.4123 270.6123 15.06412318241092",
         "description": "High-speed, low-latency satellite internet array forming an interconnected mesh in Low Earth Orbit."
+    },
+    {
+        "id": "jwst",
+        "name": "James Webb Space Telescope (JWST)",
+        "norad_id": 50463,
+        "type": "Infrared Space Observatory",
+        "altitude_km": 1500000.0,  # Orbiting Sun-Earth L2 Lagrangian Point!
+        "speed_kms": 0.20,
+        "period_mins": 262800.0,
+        "inclination_deg": 5.0,
+        "category": "DEEP SPACE (L2)",
+        "country": "International (NASA / ESA / CSA)",
+        "launch_year": 2021,
+        "tle_line1": "1 50463U 21130A   24080.11111111  .00000000  00000+0  00000+0 0  9990",
+        "tle_line2": "2 50463   5.0000 120.0000 0000000   0.0000   0.0000  0.00547945     19",
+        "description": "Premier space observatory operating at Sun-Earth Lagrange Point 2, peering into the cosmic dawn."
+    },
+    {
+        "id": "noaa-20",
+        "name": "NOAA-20 Weather Satellite (JPSS-1)",
+        "norad_id": 43013,
+        "type": "Earth Observation & Weather",
+        "altitude_km": 824.0,
+        "speed_kms": 7.43,
+        "period_mins": 101.4,
+        "inclination_deg": 98.7,
+        "category": "SSO (Sun-Synchronous)",
+        "country": "USA (NOAA / NASA)",
+        "launch_year": 2017,
+        "tle_line1": "1 43013U 17073A   24080.41234567  .00000078  00000+0  41234-4 0  9995",
+        "tle_line2": "2 43013  98.7123 145.6789 0001234  78.1234 282.1234 14.19561234324125",
+        "description": "Sun-synchronous polar-orbiting satellite providing continuous global atmospheric, oceanic, and weather monitoring."
+    },
+    {
+        "id": "galileo-foc",
+        "name": "Galileo Navigation Satellite (GSAT0219)",
+        "norad_id": 43564,
+        "type": "European Global Navigation",
+        "altitude_km": 23222.0,
+        "speed_kms": 3.67,
+        "period_mins": 844.0,
+        "inclination_deg": 56.0,
+        "category": "MEO",
+        "country": "European Union (ESA / EUSPA)",
+        "launch_year": 2018,
+        "tle_line1": "1 43564U 18060A   24080.23456789  .00000005  00000+0  00000+0 0  9996",
+        "tle_line2": "2 43564  56.0123 210.4512 0002145 190.1234 170.1234  1.70561234142109",
+        "description": "Part of the European Union Galileo precision positioning constellation with sub-meter civil accuracy."
+    },
+    {
+        "id": "iridium-next",
+        "name": "Iridium NEXT 140",
+        "norad_id": 43180,
+        "type": "Global Satellite Mesh Telecom",
+        "altitude_km": 780.0,
+        "speed_kms": 7.46,
+        "period_mins": 100.4,
+        "inclination_deg": 86.4,
+        "category": "Polar LEO",
+        "country": "USA (Iridium Communications)",
+        "launch_year": 2018,
+        "tle_line1": "1 43180U 18030A   24080.33445566  .00000112  00000+0  34512-4 0  9993",
+        "tle_line2": "2 43180  86.4123 310.1234 0001890 110.1234 250.1234 14.34123456312458",
+        "description": "Cross-linked low-earth orbit communications constellation providing 100% global voice and data coverage."
     }
 ]
 
@@ -356,7 +420,7 @@ def calculate_planet_position(name: str, t_days: float) -> Dict[str, Any]:
     """
     data = PLANET_METADATA.get(name.lower())
     if not data or name.lower() == "sun":
-        return {"x": 0.0, "y": 0.0, "z": 0.0, "distance_au": 0.0, "distance_km": 0.0}
+        return {"x_au": 0.0, "y_au": 0.0, "z_au": 0.0, "distance_au": 0.0, "distance_km": 0.0}
 
     a = data["a_au"]
     e = data["eccentricity"]
@@ -380,7 +444,6 @@ def calculate_planet_position(name: str, t_days: float) -> Dict[str, Any]:
     r_au = math.sqrt(x_orbital * x_orbital + y_orbital * y_orbital)
 
     # Heliocentric 3D coordinates taking inclination into account
-    # In space coordinate system: X = plane, Y = elevation (orbital tilt), Z = plane
     x = x_orbital
     z = y_orbital * math.cos(inc_rad)
     y = y_orbital * math.sin(inc_rad)
@@ -397,7 +460,8 @@ def calculate_planet_position(name: str, t_days: float) -> Dict[str, Any]:
 
 def calculate_satellite_vector(sat: Dict[str, Any], t_seconds: float) -> Dict[str, Any]:
     """
-    Calculates geocentric position relative to Earth center in Earth radii and kilometers.
+    Calculates geocentric position relative to Earth center in Earth radii, kilometers,
+    and real geographic latitude/longitude sub-satellite ground track coordinates.
     """
     EARTH_RADIUS_KM = 6371.0
     r_km = EARTH_RADIUS_KM + sat["altitude_km"]
@@ -413,10 +477,21 @@ def calculate_satellite_vector(sat: Dict[str, Any], t_seconds: float) -> Dict[st
     y_km = r_km * math.sin(phase) * math.sin(inc_rad)
     z_km = r_km * math.sin(phase) * math.cos(inc_rad)
 
+    # Geographic Latitude / Longitude ground track calculation
+    # Earth rotation speed approx 360 deg / 86164 sec
+    earth_rot_deg = (t_seconds / 86164.0 * 360.0) % 360.0
+    lat_rad = math.asin(y_km / r_km)
+    lon_rad = math.atan2(z_km, x_km)
+    
+    lat_deg = math.degrees(lat_rad)
+    lon_deg = (math.degrees(lon_rad) - earth_rot_deg + 180.0) % 360.0 - 180.0
+
     return {
         "x_km": round(x_km, 2),
         "y_km": round(y_km, 2),
         "z_km": round(z_km, 2),
+        "latitude_deg": round(lat_deg, 4),
+        "longitude_deg": round(lon_deg, 4),
         "altitude_km": sat["altitude_km"],
         "orbital_velocity_kms": sat["speed_kms"]
     }
