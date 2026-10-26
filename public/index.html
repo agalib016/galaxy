@@ -66,7 +66,7 @@
       <button class="nav-dropdown-btn" id="nav-dropdown-btn" title="Open Catalog of All Galaxies, Planets, Moons & Satellites">
         <span class="dropdown-icon">🧭</span>
         <span class="dropdown-title">SYSTEM NAVIGATOR</span>
-        <span class="dropdown-badge">38 OBJECTS</span>
+        <span class="dropdown-badge" id="dropdown-badge">44 OBJECTS</span>
         <span class="dropdown-arrow">▾</span>
       </button>
 
@@ -76,19 +76,28 @@
             <circle cx="11" cy="11" r="8"></circle>
             <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
           </svg>
-          <input type="text" id="navigator-search-input" placeholder="Search galaxies, planets, moons, satellites..." autocomplete="off">
+          <input type="text" id="navigator-search-input" placeholder="Search 44 galaxies, planets, moons, satellites..." autocomplete="off">
           <button class="search-clear-btn" id="search-clear-btn" title="Clear Search">✕</button>
         </div>
 
+        <!-- Filter Tabs for Instant Category Switching -->
+        <div class="dropdown-filter-tabs" id="dropdown-filter-tabs">
+          <button class="filter-tab active" data-filter="all">ALL (44)</button>
+          <button class="filter-tab" data-filter="galaxies">GALAXIES (11)</button>
+          <button class="filter-tab" data-filter="planets">SOLAR SYSTEM (9)</button>
+          <button class="filter-tab" data-filter="moons">MOONS (10)</button>
+          <button class="filter-tab" data-filter="satellites">SPACECRAFT (14)</button>
+        </div>
+
         <div class="dropdown-scroll-list" id="dropdown-scroll-list">
-          <!-- Populated dynamically and statically categorized -->
+          <!-- Populated dynamically and categorized -->
         </div>
       </div>
     </div>
 
     <!-- Quick Celestial Target Navigation Bar -->
     <nav class="quick-nav" id="quick-nav" aria-label="Celestial Target Jump Bar">
-      <button class="nav-pill galaxy-pill" id="nav-galaxy" data-target="galaxy" title="Zoom out to Milky Way Galaxy View">
+      <button class="nav-pill galaxy-pill active" id="nav-galaxy" data-target="galaxy" title="Zoom out to Milky Way Galaxy View">
         <span class="nav-pill-dot dot-galaxy"></span>Milky Way
       </button>
       <div class="nav-divider"></div>
@@ -97,7 +106,7 @@
       </button>
       <button class="nav-pill" id="nav-mercury" data-target="mercury">Mercury</button>
       <button class="nav-pill" id="nav-venus" data-target="venus">Venus</button>
-      <button class="nav-pill earth-pill active" id="nav-earth" data-target="earth">
+      <button class="nav-pill earth-pill" id="nav-earth" data-target="earth">
         <span class="nav-pill-dot dot-earth"></span>Earth
       </button>
       <button class="nav-pill mars-pill" id="nav-mars" data-target="mars">Mars</button>
@@ -156,61 +165,142 @@
       <span class="target-subtitle" id="target-subtitle">Oasis of Life &bull; Cradle of Civilization</span>
     </div>
 
-    <div class="telemetry-grid">
-      <div class="telemetry-item">
-        <span class="telemetry-label">RADIUS / SIZE</span>
-        <span class="telemetry-val" id="tel-radius">6,371 km</span>
+    <!-- Telemetry Navigation Tabs -->
+    <div class="telemetry-tabs" id="telemetry-tabs">
+      <button class="tel-tab-btn active" data-tab="tab-overview">📊 OVERVIEW</button>
+      <button class="tel-tab-btn" data-tab="tab-astrophysics">🔬 ASTROPHYSICS</button>
+      <button class="tel-tab-btn" data-tab="tab-exploration">🚀 EXPLORATION</button>
+    </div>
+
+    <!-- TAB 1: OVERVIEW -->
+    <div class="tel-tab-pane active" id="tab-overview">
+      <div class="telemetry-grid">
+        <div class="telemetry-item">
+          <span class="telemetry-label">RADIUS / SIZE</span>
+          <span class="telemetry-val" id="tel-radius">6,371 km</span>
+        </div>
+        <div class="telemetry-item">
+          <span class="telemetry-label">SURFACE TEMP</span>
+          <span class="telemetry-val" id="tel-temp">-88 °C to 58 °C</span>
+        </div>
+        <div class="telemetry-item">
+          <span class="telemetry-label">DIST. FROM SUN</span>
+          <span class="telemetry-val" id="tel-distance">1.00 AU</span>
+        </div>
+        <div class="telemetry-item">
+          <span class="telemetry-label">ORBIT VELOCITY</span>
+          <span class="telemetry-val" id="tel-speed">29.78 km/s</span>
+        </div>
       </div>
-      <div class="telemetry-item">
-        <span class="telemetry-label">SURFACE TEMP</span>
-        <span class="telemetry-val" id="tel-temp">-88 °C to 58 °C</span>
+
+      <div class="telemetry-section" id="tel-realtime-section">
+        <div class="section-title">REAL-TIME ORBITAL VECTOR</div>
+        <div class="section-row">
+          <span>Vector / Coordinates</span>
+          <strong id="tel-coords">Lat: 0.00° | Lon: 0.00°</strong>
+        </div>
+        <div class="section-row">
+          <span>Altitude / Realm</span>
+          <strong id="tel-altitude">Surface Datum</strong>
+        </div>
+        <div class="section-row">
+          <span>Orbital Period</span>
+          <strong id="tel-period">365.25 Days</strong>
+        </div>
       </div>
-      <div class="telemetry-item">
-        <span class="telemetry-label">DIST. FROM SUN</span>
-        <span class="telemetry-val" id="tel-distance">1.00 AU</span>
+
+      <div class="telemetry-section">
+        <div class="section-title">PHYSICAL ATTRIBUTES</div>
+        <div class="section-row">
+          <span>Total Mass</span>
+          <strong id="tel-mass">5.972 × 10^24 kg</strong>
+        </div>
+        <div class="section-row">
+          <span>Rotation Period</span>
+          <strong id="tel-rotation">24.0 Hours</strong>
+        </div>
+        <div class="section-row" id="tel-moons-row">
+          <span>Natural Moons / Satellites</span>
+          <strong id="tel-moons">1 (The Moon)</strong>
+        </div>
       </div>
-      <div class="telemetry-item">
-        <span class="telemetry-label">ORBIT VELOCITY</span>
-        <span class="telemetry-val" id="tel-speed">29.78 km/s</span>
+
+      <div class="telemetry-section">
+        <div class="section-title">SUMMARY & NATURE</div>
+        <p class="telemetry-description" id="tel-composition">78% Nitrogen, 21% Oxygen, 0.9% Argon. Liquid water oceans.</p>
+        <p class="telemetry-facts" id="tel-facts">The only known astronomical body to harbor life.</p>
       </div>
     </div>
 
-    <div class="telemetry-section" id="tel-realtime-section">
-      <div class="section-title">REAL-TIME ORBITAL VECTOR</div>
-      <div class="section-row">
-        <span>Sub-Satellite Ground Track</span>
-        <strong id="tel-coords">Lat: 0.00° | Lon: 0.00°</strong>
+    <!-- TAB 2: ASTROPHYSICS & INTERIOR -->
+    <div class="tel-tab-pane" id="tab-astrophysics">
+      <div class="telemetry-grid">
+        <div class="telemetry-item">
+          <span class="telemetry-label">SURFACE GRAVITY</span>
+          <span class="telemetry-val" id="tel-gravity">9.81 m/s² (1.00 g)</span>
+        </div>
+        <div class="telemetry-item">
+          <span class="telemetry-label">ESCAPE VELOCITY</span>
+          <span class="telemetry-val" id="tel-escape">11.19 km/s</span>
+        </div>
+        <div class="telemetry-item">
+          <span class="telemetry-label">ATMOS. PRESSURE</span>
+          <span class="telemetry-val" id="tel-pressure">1.013 bars (1 atm)</span>
+        </div>
+        <div class="telemetry-item">
+          <span class="telemetry-label">AXIAL TILT</span>
+          <span class="telemetry-val" id="tel-tilt">23.44°</span>
+        </div>
       </div>
-      <div class="section-row">
-        <span>Altitude</span>
-        <strong id="tel-altitude">Surface Datum</strong>
+
+      <div class="telemetry-section">
+        <div class="section-title">INTERNAL STRUCTURE & LAYERS</div>
+        <p class="telemetry-description" id="tel-structure">Solid Iron Inner Core -> Liquid Outer Core -> Viscous Mantle -> Crust</p>
       </div>
-      <div class="section-row">
-        <span>Orbital Period</span>
-        <strong id="tel-period">365.25 Days</strong>
+
+      <div class="telemetry-section">
+        <div class="section-title">MAGNETOSPHERE & DYNAMO</div>
+        <p class="telemetry-description" id="tel-magnetic">Strong dipolar geomagnetic field protecting atmosphere from solar wind.</p>
+      </div>
+
+      <div class="telemetry-section">
+        <div class="section-title">CHEMICAL COMPOSITION BREAKDOWN</div>
+        <div class="composition-tags-wrap" id="tel-comp-tags">
+          <!-- Populated dynamically with element chips -->
+        </div>
       </div>
     </div>
 
-    <div class="telemetry-section">
-      <div class="section-title">PHYSICAL ATTRIBUTES</div>
-      <div class="section-row">
-        <span>Mass</span>
-        <strong id="tel-mass">5.972 × 10^24 kg</strong>
+    <!-- TAB 3: EXPLORATION & SCIENCE -->
+    <div class="tel-tab-pane" id="tab-exploration">
+      <div class="telemetry-section">
+        <div class="section-title">HISTORIC EXPLORATION & MISSIONS</div>
+        <p class="telemetry-description" id="tel-missions">Humanity, Apollo, Voyager 1 & 2, Cassini, Curiosity, Perseverance.</p>
       </div>
-      <div class="section-row">
-        <span>Rotation Period</span>
-        <strong id="tel-rotation">24.0 Hours</strong>
-      </div>
-      <div class="section-row" id="tel-moons-row">
-        <span>Natural Moons</span>
-        <strong id="tel-moons">1 (The Moon)</strong>
-      </div>
-    </div>
 
-    <div class="telemetry-section">
-      <div class="section-title">COMPOSITION & NOTES</div>
-      <p class="telemetry-description" id="tel-composition">78% Nitrogen, 21% Oxygen, 0.9% Argon. Liquid water oceans.</p>
-      <p class="telemetry-facts" id="tel-facts">The only known astronomical body to harbor life.</p>
+      <div class="telemetry-section">
+        <div class="section-title">DISCOVERY & IDENTITY</div>
+        <div class="section-row">
+          <span>Discovery / Operator</span>
+          <strong id="tel-discovery">Known since Antiquity</strong>
+        </div>
+        <div class="section-row">
+          <span>Cosmic Address</span>
+          <strong id="tel-location">Solar System, Orion Spur, Milky Way</strong>
+        </div>
+      </div>
+
+      <div class="telemetry-section">
+        <div class="section-title">KEY SCIENTIFIC FACTS</div>
+        <p class="telemetry-facts" id="tel-deep-facts">Deep astrophysical significance and cosmic research insights.</p>
+      </div>
+
+      <div class="telemetry-section">
+        <div class="section-title">RELATED SYSTEM BODIES</div>
+        <div class="related-links-wrap" id="tel-related-links">
+          <!-- Populated with quick jumps to related moons or satellites -->
+        </div>
+      </div>
     </div>
 
     <div class="card-actions">
@@ -321,6 +411,6 @@
   </div>
 
   <!-- Main Three.js Application Logic -->
-  <script type="module" src="main.js?v=2.2.0"></script>
+  <script type="module" src="main.js?v=2.4.0"></script>
 </body>
 </html>

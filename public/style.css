@@ -174,7 +174,7 @@ html, body {
   align-items: center;
   justify-content: space-between;
   gap: 1.2rem;
-  z-index: 20;
+  z-index: 60;
   pointer-events: none;
 }
 
@@ -540,6 +540,154 @@ html, body {
   border-left: 2px solid var(--accent-gold);
   padding: 0.5rem 0.65rem;
   border-radius: 0 6px 6px 0;
+}
+
+/* Telemetry Navigation Tabs */
+.telemetry-tabs {
+  display: flex;
+  gap: 0.35rem;
+  background: rgba(0, 0, 0, 0.3);
+  padding: 0.25rem;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.tel-tab-btn {
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.05rem;
+  padding: 0.4rem 0.3rem;
+  border-radius: 7px;
+  cursor: pointer;
+  transition: var(--transition-smooth);
+  text-align: center;
+  white-space: nowrap;
+}
+
+.tel-tab-btn:hover {
+  color: var(--text-main);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.tel-tab-btn.active {
+  background: rgba(0, 240, 255, 0.18);
+  color: var(--accent-cyan);
+  border: 1px solid rgba(0, 240, 255, 0.4);
+  box-shadow: 0 0 10px rgba(0, 240, 255, 0.2);
+}
+
+/* Tab Content Visibility */
+.tel-tab-pane {
+  display: none;
+  flex-direction: column;
+  gap: 1.15rem;
+  animation: tab-fade-in 0.25s ease-out;
+}
+
+.tel-tab-pane.active {
+  display: flex;
+}
+
+@keyframes tab-fade-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Composition Breakdown Tags */
+.composition-tags-wrap {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.comp-tag {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  font-weight: 600;
+  padding: 0.25rem 0.55rem;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--text-main);
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.comp-tag-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+}
+
+/* Related Bodies Jump Buttons */
+.related-links-wrap {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.rel-link-btn {
+  background: rgba(0, 240, 255, 0.08);
+  border: 1px solid rgba(0, 240, 255, 0.25);
+  color: var(--accent-cyan);
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  font-weight: 600;
+  padding: 0.3rem 0.65rem;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: var(--transition-smooth);
+}
+
+.rel-link-btn:hover {
+  background: var(--accent-cyan);
+  color: #020408;
+  box-shadow: 0 0 10px rgba(0, 240, 255, 0.5);
+  transform: translateY(-1px);
+}
+
+/* Dropdown Filter Category Tabs */
+.dropdown-filter-tabs {
+  display: flex;
+  gap: 0.25rem;
+  padding: 0.4rem 0.8rem;
+  overflow-x: auto;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  scrollbar-width: none;
+}
+.dropdown-filter-tabs::-webkit-scrollbar { display: none; }
+
+.filter-tab {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  font-weight: 700;
+  letter-spacing: 0.05rem;
+  padding: 0.25rem 0.55rem;
+  border-radius: 10px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: var(--transition-smooth);
+}
+
+.filter-tab:hover {
+  color: var(--text-main);
+  background: rgba(255, 255, 255, 0.09);
+}
+
+.filter-tab.active {
+  background: var(--accent-cyan);
+  color: #020408;
+  border-color: var(--accent-cyan);
+  box-shadow: 0 0 10px rgba(0, 240, 255, 0.4);
 }
 
 .card-actions {
